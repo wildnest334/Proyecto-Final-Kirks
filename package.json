@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "name": "proyecto-final-kirks",
+  "version": "1.0.0",
+  "description": "Aqui estara nuestro proyecto final de el equipo de los Kirks",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wildnest334/Proyecto-Final-Kirks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wildnest334/Proyecto-Final-Kirks/issues"
+  },
+  "homepage": "https://github.com/wildnest334/Proyecto-Final-Kirks#readme"
+}
