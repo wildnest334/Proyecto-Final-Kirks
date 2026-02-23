@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "jest": "^30.2.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.1",
     "passport": "^0.7.0",
@@ -9,7 +10,6 @@
   "version": "1.0.0",
   "description": "Aqui estara nuestro proyecto final de el equipo de los Kirks",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "jest"
   },
