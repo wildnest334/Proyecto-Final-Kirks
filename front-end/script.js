@@ -220,37 +220,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
  
   if (mBuy) {
-    mBuy.addEventListener("click", async () => {
-      if (!currentProduct) return;
-  
-     
-      const inputCantidad = document.getElementById("mQty");
-      const cantidadSeleccionada = inputCantidad ? parseInt(inputCantidad.value) : 1;
-  
+      mBuy.addEventListener("click", async () => {
+        if (!currentProduct) return;
+    
+        const inputCantidad = document.getElementById("mQty");
+        const cantidadSeleccionada = inputCantidad ? parseInt(inputCantidad.value) : 1;
+        
+        // 1. Obtener el token que guardaste cuando el usuario hizo login
+        // (Asegúrate de que cuando hagan login, guarden el token con este nombre)
+        const token = localStorage.getItem('token'); 
 
-      const datosVenta = {
-        usuario: localStorage.getItem('doggie_user') || "Usuario Invitado",
-        producto: currentProduct.title,
-        precio: Number(currentProduct.price),
-        cantidad: cantidadSeleccionada 
-      };
-  
-      try {
-        const respuesta = await fetch('/api/productos/vender', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datosVenta)
-        });
-  
-        if (respuesta.ok) {
-          alert(`¡Comprado! Se registraron ${cantidadSeleccionada} unidad(es) de ${currentProduct.title}.`);
-          closeModal();
+        const datosVenta = {
+          usuario: localStorage.getItem('doggie_user') || "Usuario Invitado",
+          producto: currentProduct.title,
+          precio: Number(currentProduct.price),
+          cantidad: cantidadSeleccionada 
+        };
+    
+        try {
+          const respuesta = await fetch('/api/productos/vender', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              // 2. AGREGAR TU TOKEN AQUÍ:
+              'x-auth-token': token 
+            },
+            body: JSON.stringify(datosVenta)
+          });
+    
+          if (respuesta.ok) {
+            alert(`¡Comprado! Se registraron ${cantidadSeleccionada} unidad(es) de ${currentProduct.title}.`);
+            closeModal();
+          } else {
+            // 3. Manejar el error si no hay token o es inválido
+            const errorData = await respuesta.json();
+            alert("Error: " + (errorData.msg || "No tienes permiso para comprar. Por favor inicia sesión."));
+          }
+        } catch (error) {
+          alert("Error de conexión con el servidor.");
         }
-      } catch (error) {
-        alert("Error de conexión con el servidor.");
-      }
-    });
-  }
+      });
+    }
 
   // abrir similar 
   document.addEventListener("click", (e) => {

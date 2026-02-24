@@ -90,19 +90,22 @@
 
         const result = await respuesta.json();
 
-        if (result.success) {
-          // --- AQUÍ CONECTAMOS CON TU BASE DE DATOS DE VENTAS ---
-          // 1. Prioridad: Nombre que devuelve el servidor (el de Atlas)
-          // 2. Segunda opción: El nombre que escribió en el registro
-          // 3. Tercera opción: El correo (si es login y el server no mandó nombre)
-          const nombreParaAlmacenar = result.nombre || datos.nombreUsuario || datos.correo;
+        // CAMBIO AQUÍ: Ahora verificamos 'result.success' o si viene un token
+        if (respuesta.ok) { 
           
+          // 1. GUARDAR EL TOKEN (Esto es lo que te faltaba)
+          if (result.token) {
+            localStorage.setItem('token', result.token);
+          }
+
+          // 2. Prioridad de nombre (Lo que ya tenías)
+          const nombreParaAlmacenar = result.user?.nombreUsuario || result.nombre || datos.nombreUsuario || datos.correo;
           localStorage.setItem('doggie_user', nombreParaAlmacenar);
           
           alert("✅ ¡Bienvenido " + nombreParaAlmacenar + "!");
           window.location.href = "index.html";
         } else {
-          alert("Error: " + (result.error || "Credenciales incorrectas"));
+          alert("Error: " + (result.msg || result.error || "Credenciales incorrectas"));
         }
       } catch (error) {
         console.error("Error de red:", error);
@@ -117,7 +120,7 @@
         correo: document.getElementById('l-correo').value,
         password: document.getElementById('l-pass').value
       };
-      enviarAlServidor('/api/usuarios/login', datos);
+      enviarAlServidor('/api/auth/login', datos);
     });
 
     // Formulario Registro
@@ -129,7 +132,7 @@
         password: document.getElementById('r-pass').value,
         metodoRegistro: 'Formulario'
       };
-      enviarAlServidor('/api/usuarios/registro', datos);
+      enviarAlServidor('/api/auth/register', datos);
     });
 
     // Registro Social
