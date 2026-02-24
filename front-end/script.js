@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const STORAGE = "doggie_cart_shop_v1";
 
