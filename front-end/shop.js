@@ -1,4 +1,4 @@
-// shop.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const STORAGE = "doggie_cart_shop_v1";
 
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cart = getCart();
     cart.push(item);
     setCart(cart);
-    alert("Agregado al carrito (demo).");
+    alert("Producto agregado al carrito local.");
   }
 
   // eliminar item mini cart (delegación)
@@ -215,13 +215,41 @@ document.addEventListener("DOMContentLoaded", () => {
       const cart = getCart();
       cart.push({ id: currentProduct.id, title: currentProduct.title, price: currentProduct.price, img: currentProduct.img });
       setCart(cart);
-      alert("Agregado al carrito (demo).");
+      alert("Agregado al carrito.");
     });
   }
 
+ 
   if (mBuy) {
-    mBuy.addEventListener("click", () => {
-      alert("Compra demo. Después conectamos pagos reales.");
+    mBuy.addEventListener("click", async () => {
+      if (!currentProduct) return;
+  
+     
+      const inputCantidad = document.getElementById("mQty");
+      const cantidadSeleccionada = inputCantidad ? parseInt(inputCantidad.value) : 1;
+  
+
+      const datosVenta = {
+        usuario: localStorage.getItem('doggie_user') || "Usuario Invitado",
+        producto: currentProduct.title,
+        precio: Number(currentProduct.price),
+        cantidad: cantidadSeleccionada 
+      };
+  
+      try {
+        const respuesta = await fetch('/api/productos/vender', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datosVenta)
+        });
+  
+        if (respuesta.ok) {
+          alert(`¡Comprado! Se registraron ${cantidadSeleccionada} unidad(es) de ${currentProduct.title}.`);
+          closeModal();
+        }
+      } catch (error) {
+        alert("Error de conexión con el servidor.");
+      }
     });
   }
 
