@@ -67,7 +67,7 @@ app.post('/api/productos/vender', authMiddleware, async (req, res) => {
   }
 });
 
-// --- EL RESTO DE TUS RUTAS (LOGIN, REGISTRO, ETC) ---
+// --- EL RESTO DE TUS RUTAS ---
 
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -96,7 +96,7 @@ app.post('/api/usuarios/login', async (req, res) => {
 const publicPath = path.join(__dirname, '..', 'front-end');
 app.use(express.static(publicPath));
 
-// Mover el comodín (.*) al final de las rutas de API
+
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
