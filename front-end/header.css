@@ -188,3 +188,55 @@ html, body{
   background: rgba(255,255,255,.16) !important;
   color:#fff !important;
 }
+
+/* Contenedor del grupo de usuario */
+#menu-usuario {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px; /* Espacio entre el nombre y el botón */
+  padding-left: 10px;
+}
+
+
+
+/* El nombre del usuario (Hola, Mauricio) */
+#userText {
+  font-weight: 800 !important;
+  color: #fff !important; /* Blanco para que resalte en el azul */
+  font-size: 16px !important;
+  white-space: nowrap;
+}
+
+
+
+/* Botón de Salir mejorado */
+.logout-button {
+  background-color: rgba(255, 77, 77, 0.9) !important; /* Rojo semi-transparente */
+  color: white !important;
+  padding: 4px 12px !important;
+  border-radius: 8px !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  font-weight: 900 !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  line-height: normal !important;
+}
+
+.logout-button:hover {
+  background-color: #ff1a1a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 911px) {
+  #menu-usuario {
+      flex-direction: row; /* En móvil que se mantengan en línea o cámbialo a column */
+      justify-content: space-between;
+      padding: 14px !important;
+      border-top: 1px solid rgba(255,255,255,0.1);
+  }
+}
