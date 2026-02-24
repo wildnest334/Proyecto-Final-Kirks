@@ -10,18 +10,14 @@
 </head>
 
 <body>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-  <Link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
-  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más 
-información" class="float pulse" target="_blank"> 
+  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más información" class="float pulse" target="_blank"> 
     <i class="fa fa-whatsapp my-float "></i>
   </a>
 
-  <!-- HEADER (SIN CUENTA) -->
   <header class="header">
     <div class="menu container">
-
       <a href="index.html" class="logo">
         <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
       </a>
@@ -40,7 +36,6 @@ información" class="float pulse" target="_blank">
         </ul>
       </nav>
 
-      <!-- SOLO CARRITO -->
       <ul class="cart-wrap">
         <li class="submenu">
           <img src="img/car.svg" id="img-carrito" alt="Carrito" />
@@ -60,22 +55,15 @@ información" class="float pulse" target="_blank">
           </div>
         </li>
       </ul>
-
     </div>
   </header>
 
   <main class="container">
-
-    <!-- Encabezado de la página (corto, sin robar espacio) -->
     <section class="intro">
       <div class="intro-left">
         <h1>Paquetes Doggie Chic</h1>
-        <p>
-          Aquí puedes escribir información breve: cómo funcionan los paquetes, qué incluye cada uno,
-          horarios, recomendaciones y cualquier detalle importante.
-        </p>
+        <p>Elige el paquete ideal para tu mejor amigo. Todos nuestros servicios incluyen personal capacitado y productos premium.</p>
       </div>
-
       <div class="intro-right">
         <div class="info-box">
           <h3>¿Cómo funciona?</h3>
@@ -88,118 +76,79 @@ información" class="float pulse" target="_blank">
       </div>
     </section>
 
-    <!-- Caja grande membresía -->
     <section class="membership">
       <div class="membership-inner">
         <div class="membership-left">
           <h2>Membresía Doggie Chic</h2>
-          <p>
-            Paga mensual y recibe beneficios exclusivos. Ecuentra todo lo que necesita tu.
-            Peludito mensualmente .
-          </p>
-
+          <p>Paga mensual y recibe beneficios exclusivos para el cuidado constante de tu peludito.</p>
           <div class="membership-points">
             <div class="point">
               <h4>Incluye</h4>
-              <p>1 corte de pelo + 2 baños + 2 corte de uñas + 2 impieza de oidos + 2 limpieza de lagrimales y 2 corte de almohadillas</p>
+              <p>1 corte + 2 baños + uñas + oídos + lagrimales + almohadillas.</p>
             </div>
             <div class="point">
               <h4>Beneficios</h4>
-              <p>Descuentos, prioridad de agenda, regalo sorpresa</p>
-            </div>
-            <div class="point">
-              <h4>Soporte</h4>
-              <p>Atención preferente por WhatsApp</p>
+              <p>Descuentos, prioridad de agenda y regalo sorpresa.</p>
             </div>
           </div>
         </div>
-
         <div class="membership-right">
           <div class="membership-card">
             <p class="mini">Plan mensual</p>
             <p class="big-price">$599 <span>MXN</span></p>
-            <p class="small">Renovación automática (opcional)</p>
             <a class="btn btn-outline" href="#">Quiero la membresía</a>
-            <p class="tiny">*Luego conectamos pagos y membresía real.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Tarjetas de paquetes (3 cajas) -->
     <section class="pricing">
       <h2 class="section-title">Nuestros paquetes</h2>
-
       <div class="cards">
-
-<!-- Card 1 -->
-<article class="card" id="paquete-basico">
-  <div class="card-img">
-    <img src="img/PB1.png" alt="Paquete Básico" />
-  </div>
-
-  <div class="card-body">
-    <h3>Básico</h3>
-    <p class="price">$269 <span>MXN</span></p>
-
-    <ul class="features">
-      <li>Baño completo</li>
-      <li>Corte de uñas</li>
-      <li>Perfume</li>
-      <li>Cepillado</li>
-      <li>Limpieza de lagrimales</li>
-    </ul>
-
-    <a class="btn" href="#">Elegir Básico</a>
-  </div>
-</article>
-
-
-        <!-- Card 2 (recomendado) -->
-       <article class="card" id="paquete-completo">
-          <div class="badge">Más popular</div>
-          <div class="card-img">
-            <img src="img/Pb2.png" alt="Paquete Premium" />
+        <article class="card">
+          <div class="card-img"><img src="img/PB1.png" alt="Básico" /></div>
+          <div class="card-body">
+            <h3>Básico</h3>
+            <p class="price">$269 <span>MXN</span></p>
+            <ul class="features">
+              <li>Baño completo</li>
+              <li>Corte de uñas</li>
+              <li>Perfume</li>
+            </ul>
+            <a class="btn" href="#">Elegir Básico</a>
           </div>
+        </article>
+
+        <article class="card">
+          <div class="badge">Más popular</div>
+          <div class="card-img"><img src="img/Pb2.png" alt="Completo" /></div>
           <div class="card-body">
             <h3>Completo</h3>
             <p class="price">$319 <span>MXN</span></p>
             <ul class="features">
-              <li>Corte Higienico</li>
+              <li>Corte Higiénico</li>
               <li>Baño completo</li>
               <li>Limpieza de oídos</li>
-              <li>Corte de uñas</li>
-              <li>Cepillado</li>
-              <li>limpieza de lagrimales</li>
             </ul>
             <a class="btn" href="#">Elegir Premium</a>
           </div>
         </article>
 
-        <!-- Card 3 -->
-         <article class="card" id="paquete-spa">
         <article class="card">
-          <div class="card-img">
-            <img src="img/PB3.png" alt="Paquete Spa" />
-          </div>
+          <div class="card-img"><img src="img/PB3.png" alt="Spa" /></div>
           <div class="card-body">
             <h3>Spa</h3>
             <p class="price">$369 <span>MXN</span></p>
             <ul class="features">
-              <li>Corte de raza/personalizado</li>
-              <li>Corte higienico</li>
+              <li>Corte personalizado</li>
+              <li>Corte higiénico</li>
               <li>Baño completo</li>
-              <li>Corte de uñas</li>
-              <li>Cepillado</li>
-              <li>limpieza de lagrimales</li>
             </ul>
             <a class="btn" href="#">Elegir Spa</a>
           </div>
         </article>
-
       </div>
     </section>
-
   </main>
 
   <footer class="footer">
@@ -207,35 +156,67 @@ información" class="float pulse" target="_blank">
       <p>© Doggie Chic Studio. Todos los derechos reservados.</p>
     </div>
   </footer>
+
   <script>
+    // 1. FUNCIÓN PARA ENVIAR A SERVICIOS CONTRATADOS
+    async function contratarServicio(nombreServicio, precioServicio) {
+      // Tomamos el nombre del login (doggie_user)
+      const nombreUsuario = localStorage.getItem('doggie_user') || "Usuario Invitado";
 
-
-    // Función para enviar el servicio al backend
-    async function contratarServicio(tipo, precio) {
-      const datos = {
-        tipoServicio: tipo,
-        usuario: "Cliente Local", // Aquí irá el nombre cuando tengas el login listo
-        precio: precio
+      const datosServicio = {
+        tipoServicio: nombreServicio, // Ajustado para tu colección de servicios
+        usuario: nombreUsuario,
+        precio: precioServicio,
+        fecha: new Date().toLocaleString()
       };
-  
-      const res = await fetch('/api/servicios/contratar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
-      });
-  
-      if (res.ok) alert(`Servicio ${tipo} registrado en Atlas`);
+
+      try {
+        // CAMBIO DE RUTA: Ahora apunta a servicioscontratados
+        const respuesta = await fetch('/api/servicios/contratar', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datosServicio)
+        });
+
+        if (respuesta.ok) {
+          alert(`✅ ¡Éxito! El servicio "${nombreServicio}" se registró para ${nombreUsuario} en servicioscontratados.`);
+        } else {
+          alert("❌ Error al registrar en la base de datos de servicios.");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("❌ No hay conexión con el servidor.");
+      }
     }
-  
-    // Asignar el evento a los botones (Basado en tu HTML)
-    document.querySelectorAll('.card .btn').forEach((boton, index) => {
-      boton.addEventListener('click', (e) => {
-        e.preventDefault();
-        const card = e.target.closest('.card');
-        const nombre = card.querySelector('h3').innerText;
-        const precio = card.querySelector('.price').innerText.replace('$', '').replace(' MXN', '');
-        contratarServicio(nombre, parseInt(precio));
+
+    // 2. ACTIVAR BOTONES
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      // Botones de los 3 paquetes
+      document.querySelectorAll('.pricing .btn').forEach((boton) => {
+        boton.addEventListener('click', (e) => {
+          e.preventDefault();
+          const card = e.target.closest('.card');
+          const nombre = card.querySelector('h3').innerText;
+          const precioRaw = card.querySelector('.price').innerText;
+          const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
+          
+          contratarServicio(nombre, precio);
+        });
       });
+
+      // Botón de la membresía
+      const btnMem = document.querySelector('.membership .btn');
+      if (btnMem) {
+        btnMem.addEventListener('click', (e) => {
+          e.preventDefault();
+          const cardMem = e.target.closest('.membership-card');
+          const precioRaw = cardMem.querySelector('.big-price').innerText;
+          const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
+          
+          contratarServicio("Membresía Mensual", precio);
+        });
+      }
     });
   </script>
 </body>
