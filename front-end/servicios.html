@@ -207,6 +207,36 @@ información" class="float pulse" target="_blank">
       <p>© Doggie Chic Studio. Todos los derechos reservados.</p>
     </div>
   </footer>
+  <script>
 
+
+    // Función para enviar el servicio al backend
+    async function contratarServicio(tipo, precio) {
+      const datos = {
+        tipoServicio: tipo,
+        usuario: "Cliente Local", // Aquí irá el nombre cuando tengas el login listo
+        precio: precio
+      };
+  
+      const res = await fetch('/api/servicios/contratar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+  
+      if (res.ok) alert(`Servicio ${tipo} registrado en Atlas`);
+    }
+  
+    // Asignar el evento a los botones (Basado en tu HTML)
+    document.querySelectorAll('.card .btn').forEach((boton, index) => {
+      boton.addEventListener('click', (e) => {
+        e.preventDefault();
+        const card = e.target.closest('.card');
+        const nombre = card.querySelector('h3').innerText;
+        const precio = card.querySelector('.price').innerText.replace('$', '').replace(' MXN', '');
+        contratarServicio(nombre, parseInt(precio));
+      });
+    });
+  </script>
 </body>
 </html>
