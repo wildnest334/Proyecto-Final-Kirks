@@ -7,7 +7,7 @@ const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const Usuario = require('./models/Usuario');
 const ProductoVendido = require('./models/ProductoVendido');
-const ServicioContratado = require('./models/ServicioContratado'); // <--- Ya lo tenías importado
+const ServicioContratado = require('./models/ServicioContratado'); 
 const Mensaje = require('./models/Mensaje');
 
 const app = express();
