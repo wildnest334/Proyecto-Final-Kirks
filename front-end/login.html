@@ -14,6 +14,7 @@
     .form-section { display: none; }
     .form-section.active { display: block; }
     .btn-social { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; }
+    .submit { width: 100%; background: #0A8CEF; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
   </style>
 </head>
 <body>
@@ -77,7 +78,7 @@
       document.getElementById('tab-r').classList.toggle('active', type === 'register');
     }
 
-   
+    // FUNCIÓN DE COMUNICACIÓN CON EL SERVIDOR
     async function enviarAlServidor(url, datos) {
       console.log("Enviando a:", url, datos); 
       try {
@@ -90,19 +91,26 @@
         const result = await respuesta.json();
 
         if (result.success) {
-          alert("✅" + (result.msj || "Operación exitosa"));
-          localStorage.setItem('doggie_user', result.nombre || datos.nombreUsuario);
+          // --- AQUÍ CONECTAMOS CON TU BASE DE DATOS DE VENTAS ---
+          // 1. Prioridad: Nombre que devuelve el servidor (el de Atlas)
+          // 2. Segunda opción: El nombre que escribió en el registro
+          // 3. Tercera opción: El correo (si es login y el server no mandó nombre)
+          const nombreParaAlmacenar = result.nombre || datos.nombreUsuario || datos.correo;
+          
+          localStorage.setItem('doggie_user', nombreParaAlmacenar);
+          
+          alert("✅ ¡Bienvenido " + nombreParaAlmacenar + "!");
           window.location.href = "index.html";
         } else {
-          alert("Error: " + result.error);
+          alert("Error: " + (result.error || "Credenciales incorrectas"));
         }
       } catch (error) {
         console.error("Error de red:", error);
-        alert("No se pudo conectar con el servidor. Revisa la consola (F12).");
+        alert("No se pudo conectar con el servidor. Revisa tu backend.");
       }
     }
 
-    // 3. Capturar Formulario Login
+    // Formulario Login
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const datos = {
@@ -112,7 +120,7 @@
       enviarAlServidor('/api/usuarios/login', datos);
     });
 
-    // 4. Capturar Formulario Registro
+    // Formulario Registro
     document.getElementById('registerForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const datos = {
@@ -124,10 +132,11 @@
       enviarAlServidor('/api/usuarios/registro', datos);
     });
 
-    // 5. Registro Social
+    // Registro Social
     function registroSocial(red) {
+      const nombreSocial = "Usuario " + red;
       const datos = {
-        nombreUsuario: "Usuario " + red,
+        nombreUsuario: nombreSocial,
         correo: red.toLowerCase() + "@social.com",
         password: "social_login_default",
         metodoRegistro: red
