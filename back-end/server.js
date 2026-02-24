@@ -22,7 +22,7 @@ const client = new MercadoPagoConfig({
 });
 
 // --- RUTA NUEVA: CONTRATAR SERVICIOS ---
-// Esta es la pieza que faltaba para evitar el Error 404
+
 app.post('/api/servicios/contratar', async (req, res) => {
     try {
         const { usuario, tipoServicio, precio } = req.body;
@@ -64,7 +64,7 @@ app.post('/api/productos/vender', async (req, res) => {
   }
 });
 
-// --- EL RESTO DE TUS RUTAS (LOGIN, REGISTRO, ETC) ---
+// --- EL RESTO DE TUS RUTAS ---
 
 app.post('/api/usuarios/registro', async (req, res) => {
     try {
@@ -93,7 +93,7 @@ app.post('/api/usuarios/login', async (req, res) => {
 const publicPath = path.join(__dirname, '..', 'front-end');
 app.use(express.static(publicPath));
 
-// Mover el comodín (.*) al final de las rutas de API
+
 app.get(/.*/, (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
