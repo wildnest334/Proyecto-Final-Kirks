@@ -4,6 +4,8 @@ const path = require('path');
 const connectDB = require('./db.js');
 const cors = require('cors');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
+const authRoutes = require('./routes/auth'); //rutas de autenticación para que jale el login
+const authMiddleware = require('./middlewares/authMiddleware');  //middleware para proteger rutas que requieren autenticación :D
 
 const Usuario = require('./models/Usuario');
 const ProductoVendido = require('./models/ProductoVendido');
@@ -16,6 +18,7 @@ const PORT = process.env.PORT || 4000;
 connectDB();
 app.use(cors());
 app.use(express.json());
+app.use('/api/auth', authRoutes); // Agregé esta línea para usar las rutas de autenticación
 
 const client = new MercadoPagoConfig({ 
     accessToken: 'APP_USR-6721XXXXXXXXX-XXXXXX-XXXXXXXXX' 
@@ -23,7 +26,7 @@ const client = new MercadoPagoConfig({
 
 // --- RUTA NUEVA: CONTRATAR SERVICIOS ---
 // Esta es la pieza que faltaba para evitar el Error 404
-app.post('/api/servicios/contratar', async (req, res) => {
+app.post('/api/servicios/contratar', authMiddleware, async (req, res) => {
     try {
         const { usuario, tipoServicio, precio } = req.body;
         
@@ -45,7 +48,7 @@ app.post('/api/servicios/contratar', async (req, res) => {
 });
 
 // --- RUTA: VENDER PRODUCTOS (Ya la tenías) ---
-app.post('/api/productos/vender', async (req, res) => {
+app.post('/api/productos/vender', authMiddleware, async (req, res) => {
   try {
       const { usuario, producto, precio, cantidad } = req.body;
       const nuevaVenta = new ProductoVendido({
@@ -66,7 +69,7 @@ app.post('/api/productos/vender', async (req, res) => {
 
 // --- EL RESTO DE TUS RUTAS (LOGIN, REGISTRO, ETC) ---
 
-app.post('/api/usuarios/registro', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
     try {
         const nuevoUsuario = new Usuario(req.body);
         await nuevoUsuario.save();
