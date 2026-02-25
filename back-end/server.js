@@ -12,7 +12,7 @@ const Usuario = require('./models/Usuario');
 const ProductoVendido = require('./models/ProductoVendido');
 const ServicioContratado = require('./models/ServicioContratado');
 const Mensaje = require('./models/Mensaje');
-const Producto = require('./models/Producto'); // ← NUEVO modelo de productos
+const Producto = require('./models/Producto'); 
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -26,9 +26,9 @@ const client = new MercadoPagoConfig({
     accessToken: 'APP_USR-6721XXXXXXXXX-XXXXXX-XXXXXXXXX'
 });
 
-// ================================================
+
 // MIDDLEWARE: verificar que el usuario es ADMIN
-// ================================================
+
 function soloAdmin(req, res, next) {
     const token = req.header('x-auth-token');
     if (!token) return res.status(401).json({ msg: 'Sin token, acceso denegado' });
