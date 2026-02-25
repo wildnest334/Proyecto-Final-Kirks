@@ -520,42 +520,34 @@
 
         // Comprar ahora
         document.getElementById("btnComprarAhora").addEventListener("click", async () => {
-            const cart = getCart();
-            if (!cart.length) return;
+        const cart = getCart();
+        if (!cart.length) return;
 
-            const token = localStorage.getItem('token');
-            const usuario = localStorage.getItem('doggie_user') || "Usuario Invitado";
+        const agrupado = {};
+        cart.forEach(item => {
+            if (!agrupado[item.id]) agrupado[item.id] = { ...item, cantidad: 1 };
+            else agrupado[item.id].cantidad++;
+        });
 
-            // Agrupar por id
-            const agrupado = {};
-            cart.forEach(item => {
-                if (!agrupado[item.id]) agrupado[item.id] = { ...item, cantidad: 1 };
-                else agrupado[item.id].cantidad++;
+        const items = Object.values(agrupado);
+
+        try {
+            const respuesta = await fetch('/api/crear-sesion-stripe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items })
             });
 
-            const productos = Object.values(agrupado);
-
-            try {
-                const respuesta = await fetch('/api/productos/vender', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-auth-token': token
-                    },
-                    body: JSON.stringify({ usuario, productos })
-                });
-
-                if (respuesta.ok) {
-                    alert("¡Compra realizada con éxito!");
-                    setCart([]);
-                } else {
-                    const errorData = await respuesta.json();
-                    alert("Error: " + (errorData.msg || "No tienes permiso. Por favor inicia sesión."));
-                }
-            } catch (error) {
-                alert("Error de conexión con el servidor.");
+            if (respuesta.ok) {
+                const data = await respuesta.json();
+                window.location.href = data.url; 
+            } else {
+                alert("Error al iniciar el pago.");
             }
-        });
+        } catch (error) {
+            alert("Error de conexión con el servidor.");
+        }
+    });
 
         // Login/usuario
         document.addEventListener("DOMContentLoaded", () => {

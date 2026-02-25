@@ -468,35 +468,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (mBuy) {
-    mBuy.addEventListener("click", async () => {
-      if (!currentProduct) return;
-      const cantidad = parseInt(document.getElementById("mQty")?.value || 1);
-      const token = localStorage.getItem('token');
+  mBuy.addEventListener("click", async () => {
+    if (!currentProduct) return;
+    const cantidad = parseInt(document.getElementById("mQty")?.value || 1);
 
-      try {
-        const respuesta = await fetch('/api/productos/vender', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-          body: JSON.stringify({
-            usuario: localStorage.getItem('doggie_user') || "Invitado",
-            producto: currentProduct.title,
-            precio: Number(currentProduct.price),
-            cantidad
-          })
-        });
+    const items = [{
+      id: currentProduct.id,
+      title: currentProduct.title,
+      price: currentProduct.price,
+      cantidad: cantidad
+    }];
 
-        if (respuesta.ok) {
-          alert(`¡Comprado! ${cantidad} unidad(es) de ${currentProduct.title}.`);
-          closeModal();
-        } else {
-          const err = await respuesta.json();
-          alert("Error: " + (err.msg || "Inicia sesión para comprar."));
-        }
-      } catch (error) {
-        alert("Error de conexión con el servidor.");
+    try {
+      const respuesta = await fetch('/api/crear-sesion-stripe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items })
+      });
+
+      if (respuesta.ok) {
+        const data = await respuesta.json();
+        window.location.href = data.url;
+      } else {
+        alert("Error al iniciar el pago.");
       }
-    });
-  }
+    } catch (error) {
+      alert("Error de conexión.");
+    }
+  });
+}
 
   // Click en similar
   document.addEventListener("click", (e) => {

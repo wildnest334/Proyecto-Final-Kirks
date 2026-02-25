@@ -4,9 +4,9 @@ const path = require('path');
 const connectDB = require('./db.js');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-00000000000000000000000000000000000000000000
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middlewares/authMiddleware');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const Usuario = require('./models/Usuario');
 const ProductoVendido = require('./models/ProductoVendido');
@@ -22,9 +22,6 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 
-const client = new MercadoPagoConfig({
-    accessToken: 'APP_USR-6721XXXXXXXXX-XXXXXX-XXXXXXXXX'
-});
 
 
 // MIDDLEWARE: verificar que el usuario es ADMIN
@@ -179,6 +176,35 @@ app.post('/api/contacto', async (req, res) => {
         res.status(201).json({ success: true });
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/crear-sesion-stripe', async (req, res) => {
+    try {
+        const { items } = req.body;
+        
+        const lineItems = items.map(item => ({
+            price_data: {
+                currency: 'mxn',
+                product_data: {
+                    name: item.title,
+                },
+                unit_amount: Math.round(Number(item.price) * 100), 
+            },
+            quantity: item.cantidad,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: lineItems,
+            mode: 'payment',
+            success_url: 'http://localhost:4000/exito.html',
+            cancel_url: 'http://localhost:4000/carrito.html',
+        });
+
+        res.json({ url: session.url });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear la sesión de pago' });
     }
 });
 
