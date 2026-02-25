@@ -4,7 +4,7 @@ const path = require('path');
 const connectDB = require('./db.js');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+00000000000000000000000000000000000000000000
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middlewares/authMiddleware');
 
