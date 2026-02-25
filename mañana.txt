@@ -1,0 +1,6 @@
+Que hacer mañana?:
+Gael: corregir el front end, limpiar codigo basura y pulir funciones y dividir archivos
+Adrian: api de pagos
+Ariel: un poco de descanso al hombre
+Mauricio: ser el QA y revisar que falla y que responde bien
+Carlos: consultar errores basicos con la IA
