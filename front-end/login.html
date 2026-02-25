@@ -78,9 +78,7 @@
       document.getElementById('tab-r').classList.toggle('active', type === 'register');
     }
 
-    // FUNCIÓN DE COMUNICACIÓN CON EL SERVIDOR
     async function enviarAlServidor(url, datos) {
-      console.log("Enviando a:", url, datos); 
       try {
         const respuesta = await fetch(url, {
           method: 'POST',
@@ -90,61 +88,60 @@
 
         const result = await respuesta.json();
 
-        // CAMBIO AQUÍ: Ahora verificamos 'result.success' o si viene un token
-        if (respuesta.ok) { 
-          
-          
+        if (respuesta.ok) {
+          // Guardar token
           if (result.token) {
             localStorage.setItem('token', result.token);
           }
 
-          // 2. Prioridad de nombre (Lo que ya tenías)
-          const nombreParaAlmacenar = result.user?.nombreUsuario || result.nombre || datos.nombreUsuario || datos.correo;
-          localStorage.setItem('doggie_user', nombreParaAlmacenar);
-          
-          alert("✅ ¡Bienvenido " + nombreParaAlmacenar + "!");
+          // Guardar nombre
+          const nombre = result.user?.nombreUsuario || result.nombre || datos.nombreUsuario || datos.correo;
+          localStorage.setItem('doggie_user', nombre);
+
+          // ✅ NUEVO: Guardar el role para el CRUD de admin
+          if (result.role) {
+            localStorage.setItem('doggie_role', result.role);
+          }
+
+          alert("✅ ¡Bienvenido " + nombre + "!");
           window.location.href = "index.html";
         } else {
           alert("Error: " + (result.msg || result.error || "Credenciales incorrectas"));
         }
       } catch (error) {
         console.error("Error de red:", error);
-        alert("No se pudo conectar con el servidor. Revisa tu backend.");
+        alert("No se pudo conectar con el servidor.");
       }
     }
 
-    // Formulario Login
+    // Login
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const datos = {
+      enviarAlServidor('/api/auth/login', {
         correo: document.getElementById('l-correo').value,
         password: document.getElementById('l-pass').value
-      };
-      enviarAlServidor('/api/auth/login', datos);
+      });
     });
 
-    // Formulario Registro
+    // Registro
     document.getElementById('registerForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const datos = {
+      enviarAlServidor('/api/auth/register', {
         nombreUsuario: document.getElementById('r-nombre').value,
         correo: document.getElementById('r-correo').value,
         password: document.getElementById('r-pass').value,
         metodoRegistro: 'Formulario'
-      };
-      enviarAlServidor('/api/auth/register', datos);
+      });
     });
 
-    // Registro Social
+    // Social
     function registroSocial(red) {
-      const nombreSocial = "Usuario " + red;
-      const datos = {
-        nombreUsuario: nombreSocial,
+      enviarAlServidor('/api/usuarios/registro', {
+        nombreUsuario: "Usuario " + red,
         correo: red.toLowerCase() + "@social.com",
         password: "social_login_default",
         metodoRegistro: red
-      };
-      enviarAlServidor('/api/usuarios/registro', datos);
+      });
     }
   </script>
 </body>

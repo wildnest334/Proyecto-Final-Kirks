@@ -1,6 +1,6 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const STORAGE = "doggie_cart_shop_v1";
+  const PRODUCTOS_STORAGE = "doggie_productos_v1";
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -9,15 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const search = $("#search");
   const sort = $("#sort");
   const catChips = $("#catChips");
-
   const cartCount = $("#cartCount");
-  const miniCartBody = $("#miniCartBody");
-  const vaciarCarrito = $("#vaciar-carrito");
-
   const modal = $("#modal");
   const modalClose = $("#modalClose");
   const modalX = $("#modalX");
-
   const mImg = $("#mImg");
   const mThumbs = $("#mThumbs");
   const mTitle = $("#mTitle");
@@ -31,39 +26,336 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedCat = "all";
   let currentProduct = null;
 
-  function moneyMXN(n) {
-    const v = Number(n || 0);
-    return "$" + v.toFixed(0) + " MXN";
-  }
+  // ================================================
+  // VERIFICAR SI ES ADMIN
+  // ================================================
+  const esAdmin = localStorage.getItem('doggie_role') === 'admin';
 
-  function tagsOf(str) {
-    return String(str || "")
-      .split(",")
-      .map(x => x.trim().toLowerCase())
-      .filter(Boolean);
-  }
-
-  function normalizeText(str) {
-    return String(str || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-  }
-
-  function scoreMatch(text, query) {
-    const t = normalizeText(text);
-    const q = normalizeText(query).trim();
-    if (!q) return 1;
-
-    const tokens = q.split(/\s+/).filter(Boolean);
-    let score = 0;
-    for (const tok of tokens) {
-      if (t.includes(tok)) score += 1;
+  // ================================================
+  // PRODUCTOS BASE (los que ya estaban en el HTML)
+  // ================================================
+  const PRODUCTOS_BASE = [
+    {
+      id: "p01", title: "Perfume Freshcare", price: "199", cat: "cuidado",
+      tags: "cuidado,perfume,higiene,aroma",
+      desc: "Perfume exclusivo para perros con aroma fresco y suave. Ideal para después del baño.",
+      img: "img/pla1.png"
+    },
+    {
+      id: "p02", title: "Collar Premium", price: "149", cat: "accesorios",
+      tags: "accesorios,collar,paseo,pechera",
+      desc: "Collar cómodo, resistente y con estilo. Ajustable para talla mediana.",
+      img: "img/pla2.png"
+    },
+    {
+      id: "p03", title: "Mordedera Antiestrés", price: "79", cat: "juguetes",
+      tags: "juguetes,mordedera,entrenamiento,pelota",
+      desc: "Juguete resistente para morder. Ayuda a liberar estrés y entretener.",
+      img: "img/pla3.png"
     }
-    return score;
+  ];
+
+  // ================================================
+  // MANEJO DE PRODUCTOS (base + los del admin en BD)
+  // ================================================
+  function getProductosAdmin() {
+    try { return JSON.parse(localStorage.getItem(PRODUCTOS_STORAGE) || "[]"); }
+    catch { return []; }
   }
 
-  // ===== CARRITO =====
+  function setProductosAdmin(items) {
+    localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(items));
+  }
+
+  function getTodosLosProductos() {
+    return [...PRODUCTOS_BASE, ...getProductosAdmin()];
+  }
+
+  // ================================================
+  // RENDERIZAR GRID DE PRODUCTOS
+  // ================================================
+  function renderGrid() {
+    if (!grid) return;
+    const productos = getTodosLosProductos();
+
+    grid.innerHTML = productos.map(p => `
+      <article class="card"
+        data-id="${p.id}"
+        data-title="${p.title}"
+        data-price="${p.price}"
+        data-cat="${p.cat}"
+        data-tags="${p.tags || ''}"
+        data-desc="${p.desc || ''}"
+        data-img="${p.img || 'img/pla1.png'}">
+        <div class="card-img">
+          <img src="${p.img || 'img/pla1.png'}" alt="${p.title}" onerror="this.src='img/pla1.png'">
+          <div class="card-actions">
+            <button class="btn btn-ghost btnView" type="button">Ver</button>
+            <button class="btn btnAdd" type="button">Agregar</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <h3>${p.title}</h3>
+          <div class="card-meta">
+            <span class="pill">${p.cat}</span>
+            <span class="price">$${p.price} MXN</span>
+          </div>
+          ${esAdmin ? `
+          <div class="admin-actions" style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn-admin-edit" data-id="${p.id}"
+              style="flex:1; background:#f0ad00; color:#fff; border:none; border-radius:8px; padding:6px; font-weight:700; cursor:pointer;">
+              ✏️ Editar
+            </button>
+            <button class="btn-admin-delete" data-id="${p.id}"
+              style="flex:1; background:#ff4d4d; color:#fff; border:none; border-radius:8px; padding:6px; font-weight:700; cursor:pointer;">
+              🗑️ Borrar
+            </button>
+          </div>` : ''}
+        </div>
+      </article>
+    `).join("");
+
+    applyFilters();
+    bindAdminButtons();
+  }
+
+  // ================================================
+  // BOTÓN AGREGAR PRODUCTO (solo admin)
+  // ================================================
+  if (esAdmin) {
+    const shopTop = $(".shop-products-top");
+    if (shopTop) {
+      const btnAgregar = document.createElement('button');
+      btnAgregar.innerHTML = '➕ Agregar Producto';
+      btnAgregar.style.cssText = `
+        background: linear-gradient(90deg, #0D47A1, #1976D2);
+        color: white; border: none; border-radius: 10px;
+        padding: 10px 20px; font-weight: 800; font-size: 14px;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-top: 8px;
+      `;
+      btnAgregar.addEventListener('click', () => abrirModalAdmin(null));
+      shopTop.appendChild(btnAgregar);
+    }
+  }
+
+  // ================================================
+  // MODAL CRUD ADMIN
+  // ================================================
+  function abrirModalAdmin(producto) {
+    const esEdicion = producto !== null;
+
+    // Crear modal si no existe
+    let adminModal = $("#adminModal");
+    if (adminModal) adminModal.remove();
+
+    adminModal = document.createElement('div');
+    adminModal.id = "adminModal";
+    adminModal.style.cssText = `
+      position: fixed; inset: 0; z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    `;
+
+    adminModal.innerHTML = `
+      <div style="background:#fff; border-radius:18px; padding:32px; width:90%; max-width:500px;
+                  box-shadow:0 20px 60px rgba(0,0,0,0.3); position:relative; max-height:90vh; overflow-y:auto;">
+        <button id="cerrarAdminModal" style="position:absolute;top:16px;right:16px;background:none;
+          border:none;font-size:22px;cursor:pointer;color:#888;">✕</button>
+
+        <h3 style="margin-bottom:20px; color:#0D47A1; font-size:20px;">
+          ${esEdicion ? '✏️ Editar Producto' : '➕ Agregar Producto'}
+        </h3>
+
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">Nombre del producto *</label>
+            <input id="admin-title" type="text" value="${producto?.title || ''}" placeholder="Ej. Shampoo Premium"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">Precio (MXN) *</label>
+            <input id="admin-price" type="number" value="${producto?.price || ''}" placeholder="Ej. 299"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">Categoría *</label>
+            <select id="admin-cat"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box;">
+              <option value="cuidado" ${producto?.cat === 'cuidado' ? 'selected' : ''}>Cuidado</option>
+              <option value="accesorios" ${producto?.cat === 'accesorios' ? 'selected' : ''}>Accesorios</option>
+              <option value="juguetes" ${producto?.cat === 'juguetes' ? 'selected' : ''}>Juguetes</option>
+              <option value="farmacia" ${producto?.cat === 'farmacia' ? 'selected' : ''}>Farmacia</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">Descripción</label>
+            <textarea id="admin-desc" placeholder="Descripción del producto..."
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box; resize:vertical; min-height:80px;">${producto?.desc || ''}</textarea>
+          </div>
+
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">Tags (separados por coma)</label>
+            <input id="admin-tags" type="text" value="${producto?.tags || ''}" placeholder="Ej. cuidado,higiene,perro"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box;">
+          </div>
+
+          <div>
+            <label style="font-weight:700; font-size:13px; color:#555;">URL de imagen</label>
+            <input id="admin-img" type="text" value="${producto?.img || 'img/pla1.png'}" placeholder="img/producto.png"
+              style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:4px; font-size:14px; box-sizing:border-box;">
+          </div>
+
+          <button id="btnGuardarAdmin"
+            style="background:linear-gradient(90deg,#0D47A1,#1976D2); color:white; border:none;
+                   border-radius:10px; padding:13px; font-size:16px; font-weight:800; cursor:pointer;
+                   margin-top:6px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+            ${esEdicion ? '💾 Guardar Cambios' : '➕ Agregar Producto'}
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(adminModal);
+
+    // Cerrar
+    $("#cerrarAdminModal").addEventListener('click', () => adminModal.remove());
+    adminModal.addEventListener('click', (e) => { if (e.target === adminModal) adminModal.remove(); });
+
+    // Guardar
+    $("#btnGuardarAdmin").addEventListener('click', async () => {
+      const title = $("#admin-title").value.trim();
+      const price = $("#admin-price").value.trim();
+      const cat = $("#admin-cat").value;
+      const desc = $("#admin-desc").value.trim();
+      const tags = $("#admin-tags").value.trim();
+      const img = $("#admin-img").value.trim() || 'img/pla1.png';
+
+      if (!title || !price) {
+        alert("El nombre y el precio son obligatorios.");
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const datos = { title, price: Number(price), cat, desc, tags, img };
+
+      try {
+        let respuesta;
+        if (esEdicion) {
+          // PUT al servidor
+          respuesta = await fetch(`/api/productos/${producto.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify(datos)
+          });
+        } else {
+          // POST al servidor
+          respuesta = await fetch('/api/productos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify(datos)
+          });
+        }
+
+        if (respuesta.ok) {
+          const result = await respuesta.json();
+          // Guardar también en localStorage como respaldo
+          const productosAdmin = getProductosAdmin();
+          if (esEdicion) {
+            const idx = productosAdmin.findIndex(p => p.id === producto.id);
+            if (idx !== -1) {
+              productosAdmin[idx] = { ...productosAdmin[idx], ...datos };
+            }
+          } else {
+            const nuevoId = result.producto?._id || 'local_' + Date.now();
+            productosAdmin.push({ id: nuevoId, ...datos });
+          }
+          setProductosAdmin(productosAdmin);
+          adminModal.remove();
+          renderGrid();
+          alert(esEdicion ? "✅ Producto actualizado." : "✅ Producto agregado.");
+        } else {
+          const err = await respuesta.json();
+          // Si falla el servidor, guardar solo en localStorage
+          if (!esEdicion) {
+            const productosAdmin = getProductosAdmin();
+            productosAdmin.push({ id: 'local_' + Date.now(), ...datos });
+            setProductosAdmin(productosAdmin);
+            adminModal.remove();
+            renderGrid();
+            alert("✅ Producto agregado localmente.");
+          } else {
+            alert("Error: " + (err.msg || err.error || "No se pudo guardar"));
+          }
+        }
+      } catch (error) {
+        // Sin conexión: guardar en localStorage
+        const productosAdmin = getProductosAdmin();
+        if (esEdicion) {
+          const idx = productosAdmin.findIndex(p => p.id === producto.id);
+          if (idx !== -1) productosAdmin[idx] = { ...productosAdmin[idx], ...datos };
+        } else {
+          productosAdmin.push({ id: 'local_' + Date.now(), ...datos });
+        }
+        setProductosAdmin(productosAdmin);
+        adminModal.remove();
+        renderGrid();
+        alert(esEdicion ? "✅ Cambios guardados localmente." : "✅ Producto agregado localmente.");
+      }
+    });
+  }
+
+  // ================================================
+  // BOTONES EDITAR / BORRAR en cada card
+  // ================================================
+  function bindAdminButtons() {
+    if (!esAdmin) return;
+
+    $$(".btn-admin-edit").forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const todos = getTodosLosProductos();
+        const producto = todos.find(p => p.id === id);
+        if (producto) abrirModalAdmin(producto);
+      });
+    });
+
+    $$(".btn-admin-delete").forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
+
+        const token = localStorage.getItem('token');
+
+        try {
+          const respuesta = await fetch(`/api/productos/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-auth-token': token }
+          });
+          // Eliminar también de localStorage
+          const productosAdmin = getProductosAdmin().filter(p => p.id !== id);
+          setProductosAdmin(productosAdmin);
+          renderGrid();
+          alert("🗑️ Producto eliminado.");
+        } catch (error) {
+          // Sin conexión: eliminar solo de localStorage
+          const productosAdmin = getProductosAdmin().filter(p => p.id !== id);
+          setProductosAdmin(productosAdmin);
+          renderGrid();
+          alert("🗑️ Producto eliminado localmente.");
+        }
+      });
+    });
+  }
+
+  // ================================================
+  // CARRITO
+  // ================================================
   function getCart() {
     try { return JSON.parse(localStorage.getItem(STORAGE) || "[]"); }
     catch { return []; }
@@ -72,31 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function setCart(items) {
     localStorage.setItem(STORAGE, JSON.stringify(items));
     updateBadge();
-    renderMiniCart();
   }
 
   function updateBadge() {
     if (!cartCount) return;
     cartCount.textContent = getCart().length;
-  }
-
-  function renderMiniCart() {
-    if (!miniCartBody) return;
-    const cart = getCart();
-
-    if (!cart.length) {
-      miniCartBody.innerHTML = `<tr><td colspan="4">Carrito vacío</td></tr>`;
-      return;
-    }
-
-    miniCartBody.innerHTML = cart.map((it, idx) => `
-      <tr>
-        <td><img src="${it.img}" alt="Producto en carrito: ${it.title}" class="mini-img"></td>
-        <td>${it.title}</td>
-        <td>${moneyMXN(it.price)}</td>
-        <td><a href="#" class="borrar" data-rm="${idx}">x</a></td>
-      </tr>
-    `).join("");
   }
 
   function addToCartFromCard(card) {
@@ -106,33 +378,15 @@ document.addEventListener("DOMContentLoaded", () => {
       price: card.dataset.price,
       img: card.dataset.img
     };
-
     const cart = getCart();
     cart.push(item);
     setCart(cart);
-    alert("Producto agregado al carrito local.");
+    alert("Producto agregado al carrito.");
   }
 
-  // eliminar item mini cart (delegación)
-  document.addEventListener("click", (e) => {
-    const rm = e.target.closest("[data-rm]");
-    if (!rm) return;
-
-    e.preventDefault();
-    const idx = Number(rm.getAttribute("data-rm"));
-    const cart = getCart();
-    cart.splice(idx, 1);
-    setCart(cart);
-  });
-
-  if (vaciarCarrito) {
-    vaciarCarrito.addEventListener("click", (e) => {
-      e.preventDefault();
-      setCart([]);
-    });
-  }
-
-  // ===== MODAL =====
+  // ================================================
+  // MODAL DE PRODUCTO (ver detalle)
+  // ================================================
   function openModalFromCard(card) {
     currentProduct = {
       id: card.dataset.id,
@@ -158,18 +412,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mThumbs.innerHTML = imgs.map((src) => `
       <button class="thumb" type="button">
-        <img src="${src}" alt="Miniatura del producto">
+        <img src="${src}" alt="Miniatura">
       </button>
     `).join("");
 
     $$(".thumb", mThumbs).forEach((btn, idx) => {
-      btn.addEventListener("click", () => {
-        mImg.src = imgs[idx];
-      });
+      btn.addEventListener("click", () => { mImg.src = imgs[idx]; });
     });
 
     renderSimilarProducts();
-
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
   }
@@ -182,16 +433,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSimilarProducts() {
-    if (!currentProduct) return;
-
+    if (!currentProduct || !mSimilar) return;
     const cards = $$(".card");
     const sim = cards
       .filter(c => c.dataset.id !== currentProduct.id)
       .map(c => ({
-        id: c.dataset.id,
-        title: c.dataset.title,
-        price: c.dataset.price,
-        img: c.dataset.img,
+        id: c.dataset.id, title: c.dataset.title,
+        price: c.dataset.price, img: c.dataset.img,
         tags: tagsOf(c.dataset.tags)
       }))
       .filter(p => p.tags.some(t => currentProduct.tags.includes(t)))
@@ -199,11 +447,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mSimilar.innerHTML = sim.length ? sim.map(p => `
       <button class="sim" type="button" data-open="${p.id}">
-        <img src="${p.img}" alt="Producto similar: ${p.title}">
+        <img src="${p.img}" alt="${p.title}">
         <div class="sim-t">${p.title}</div>
         <div class="sim-p">${moneyMXN(p.price)}</div>
       </button>
-    `).join("") : `<div class="empty">Aún no hay similares. Usa tags parecidas.</div>`;
+    `).join("") : `<div class="empty">Sin productos similares.</div>`;
   }
 
   if (modalClose) modalClose.addEventListener("click", closeModal);
@@ -219,33 +467,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
- 
   if (mBuy) {
     mBuy.addEventListener("click", async () => {
       if (!currentProduct) return;
-  
-     
-      const inputCantidad = document.getElementById("mQty");
-      const cantidadSeleccionada = inputCantidad ? parseInt(inputCantidad.value) : 1;
-  
+      const cantidad = parseInt(document.getElementById("mQty")?.value || 1);
+      const token = localStorage.getItem('token');
 
-      const datosVenta = {
-        usuario: localStorage.getItem('doggie_user') || "Usuario Invitado",
-        producto: currentProduct.title,
-        precio: Number(currentProduct.price),
-        cantidad: cantidadSeleccionada 
-      };
-  
       try {
         const respuesta = await fetch('/api/productos/vender', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datosVenta)
+          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          body: JSON.stringify({
+            usuario: localStorage.getItem('doggie_user') || "Invitado",
+            producto: currentProduct.title,
+            precio: Number(currentProduct.price),
+            cantidad
+          })
         });
-  
+
         if (respuesta.ok) {
-          alert(`¡Comprado! Se registraron ${cantidadSeleccionada} unidad(es) de ${currentProduct.title}.`);
+          alert(`¡Comprado! ${cantidad} unidad(es) de ${currentProduct.title}.`);
           closeModal();
+        } else {
+          const err = await respuesta.json();
+          alert("Error: " + (err.msg || "Inicia sesión para comprar."));
         }
       } catch (error) {
         alert("Error de conexión con el servidor.");
@@ -253,56 +498,59 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // abrir similar 
+  // Click en similar
   document.addEventListener("click", (e) => {
     const openBtn = e.target.closest("[data-open]");
     if (!openBtn) return;
-
     const id = openBtn.getAttribute("data-open");
     const card = document.querySelector(`.card[data-id="${id}"]`);
     if (card) openModalFromCard(card);
   });
 
-  // ===== Filtros =====
+  // ================================================
+  // FILTROS
+  // ================================================
+  function moneyMXN(n) {
+    return "$" + Number(n || 0).toFixed(0) + " MXN";
+  }
+
+  function tagsOf(str) {
+    return String(str || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+  }
+
+  function normalizeText(str) {
+    return String(str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function scoreMatch(text, query) {
+    const t = normalizeText(text);
+    const q = normalizeText(query).trim();
+    if (!q) return 1;
+    return q.split(/\s+/).filter(Boolean).reduce((s, tok) => s + (t.includes(tok) ? 1 : 0), 0);
+  }
+
   function applyFilters() {
     const q = search ? search.value : "";
     const cards = $$(".card");
 
     let scored = cards.map(card => {
       const cat = (card.dataset.cat || "").toLowerCase();
-      const okCat = (selectedCat === "all" || cat === selectedCat);
-
-      const title = card.dataset.title || "";
-      const tags = card.dataset.tags || "";
-      const desc = card.dataset.desc || "";
-      const text = `${title} ${tags} ${desc}`;
-
+      const okCat = selectedCat === "all" || cat === selectedCat;
+      const text = `${card.dataset.title} ${card.dataset.tags} ${card.dataset.desc}`;
       const score = scoreMatch(text, q);
-      const okSearch = !q.trim() || score > 0;
-
-      return { card, ok: okCat && okSearch, score };
+      return { card, ok: okCat && (!q.trim() || score > 0), score };
     });
 
     let visible = scored.filter(x => x.ok);
-
     const mode = sort ? sort.value : "featured";
 
-    if (mode === "featured") {
-      if (q.trim()) visible.sort((a, b) => b.score - a.score);
-    }
-    if (mode === "az") {
-      visible.sort((a, b) => (a.card.dataset.title || "").localeCompare(b.card.dataset.title || ""));
-    }
-    if (mode === "priceLow") {
-      visible.sort((a, b) => Number(a.card.dataset.price || 0) - Number(b.card.dataset.price || 0));
-    }
-    if (mode === "priceHigh") {
-      visible.sort((a, b) => Number(b.card.dataset.price || 0) - Number(a.card.dataset.price || 0));
-    }
+    if (mode === "featured" && q.trim()) visible.sort((a, b) => b.score - a.score);
+    if (mode === "az") visible.sort((a, b) => (a.card.dataset.title || "").localeCompare(b.card.dataset.title || ""));
+    if (mode === "priceLow") visible.sort((a, b) => Number(a.card.dataset.price || 0) - Number(b.card.dataset.price || 0));
+    if (mode === "priceHigh") visible.sort((a, b) => Number(b.card.dataset.price || 0) - Number(a.card.dataset.price || 0));
 
     cards.forEach(c => (c.style.display = "none"));
     visible.forEach(x => (x.card.style.display = ""));
-
     if (grid) visible.forEach(x => grid.appendChild(x.card));
   }
 
@@ -320,23 +568,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (search) search.addEventListener("input", applyFilters);
   if (sort) sort.addEventListener("change", applyFilters);
 
+  // Click en cards (Ver / Agregar)
   if (grid) {
     grid.addEventListener("click", (e) => {
+      if (e.target.closest(".btn-admin-edit") || e.target.closest(".btn-admin-delete")) return;
       const viewBtn = e.target.closest(".btnView");
       const addBtn = e.target.closest(".btnAdd");
-
       if (!viewBtn && !addBtn) return;
-
       const card = e.target.closest(".card");
       if (!card) return;
-
       if (viewBtn) openModalFromCard(card);
       if (addBtn) addToCartFromCard(card);
     });
   }
 
-  // init
+  // ================================================
+  // INICIALIZAR
+  // ================================================
   updateBadge();
-  renderMiniCart();
-  applyFilters();
+  renderGrid(); // renderiza productos base + admin
 });
