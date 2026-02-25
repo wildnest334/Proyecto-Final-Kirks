@@ -4,17 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <title>Doggie Chic Studio</title>
+    <title>Doggie Chic Studio - Inicio</title>
 
-
-<!---Links de recursos style --->
+    <!---Links de recursos style --->
     <link rel="stylesheet" href="style.css">
-     <link rel="stylesheet" href="BWap/style2.css">
-     <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="BWap/style2.css">
+    <link rel="stylesheet" href="header.css">
 
-
-
+  
 </head>
 
 <body>
@@ -41,6 +38,12 @@ información" class="float pulse" target="_blank">
                     <li><a href="servicios.html">Servicios</a></li>
                     <li><a href="Productos.html">Productos</a></li>
                     <li><a href="Contacto.html">Contacto</a></li>
+                    <!-- ===== NUEVO: Menú de usuario/login ===== -->
+                    <li id="menu-usuario">
+                        <a href="login.html" id="userLink">
+                            <span id="userText">Cuenta</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <div>
@@ -59,6 +62,16 @@ información" class="float pulse" target="_blank">
                                 </thead>
                                 <tbody></tbody>
                             </table>
+
+                            <!-- ===== NUEVO: Selector de cantidad ===== -->
+                            <div class="selector-cantidad">
+                                <label for="mQty" style="color: #333; font-size: 12px;">Cantidad:</label>
+                                <input type="number" id="mQty" value="1" min="1" class="input-qty">
+                            </div>
+
+                            <!-- ===== NUEVO: Botón Comprar Ahora ===== -->
+                            <a href="#" id="mBuy" class="btn-comprar-directo">Comprar Ahora (Atlas)</a>
+
                             <a href="#" id="vaciar-carrito" class="btn-3">Vaciar Carrito</a>
                         </div>
                     </li>
@@ -319,7 +332,36 @@ información" class="float pulse" target="_blank">
     </footer>
 
 
-
-
 </body>
 <script src="script.js"></script>
+
+<!-- ===== NUEVO: Script de login/usuario ===== -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const userName = localStorage.getItem('doggie_user');
+        const userLink = document.getElementById('userLink');
+        const userText = document.getElementById('userText');
+        const menuUsuario = document.getElementById('menu-usuario');
+
+        if (userName) {
+            userText.innerText = "Hola, " + userName;
+            userLink.href = "#";
+
+            const logoutBtn = document.createElement('a');
+            logoutBtn.innerText = "Salir";
+            logoutBtn.className = "logout-button";
+
+            logoutBtn.onclick = (e) => {
+                e.preventDefault();
+                if (confirm("¿Quieres cerrar sesión?")) {
+                    localStorage.removeItem('doggie_user');
+                    window.location.reload();
+                }
+            };
+
+            menuUsuario.appendChild(logoutBtn);
+        }
+    });
+</script>
+
+</html>
