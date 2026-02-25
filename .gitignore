@@ -1,6 +1,6 @@
-mañana.txt
-.DS_Store
-mañana.txt
-*.txt
-.env
 node_modules/
+.env
+dist/
+build/
+
+.DS_Store
