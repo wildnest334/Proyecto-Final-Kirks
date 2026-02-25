@@ -7,6 +7,28 @@
   <link rel="stylesheet" href="servicios.css" />
   <link rel="stylesheet" href="BWap/style2.css">
   <link rel="stylesheet" href="header.css">
+
+  <style>
+    /* ===== Botón carrito navbar ===== */
+    #carrito-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #cartCount {
+      background: #ff4d4d;
+      color: #fff;
+      border-radius: 50%;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 18px;
+      text-align: center;
+      line-height: 18px;
+    }
+  </style>
 </head>
 
 <body>
@@ -33,26 +55,21 @@
           <li><a class="active" href="servicios.html">Servicios</a></li>
           <li><a href="Productos.html">Productos</a></li>
           <li><a href="Contacto.html">Contacto</a></li>
+          <li id="menu-usuario">
+            <a href="login.html" id="userLink">
+              <span id="userText">Cuenta</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
+      <!-- ===== BOTÓN carrito → lleva a carrito.html ===== -->
       <ul class="cart-wrap">
-        <li class="submenu">
-          <img src="img/car.svg" id="img-carrito" alt="Carrito" />
-          <div id="carrito">
-            <table id="lista-carrito">
-              <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>Nombre</th>
-                  <th>Precio</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-            <a href="#" id="vaciar-carrito" class="btn-3">Vaciar Carrito</a>
-          </div>
+        <li>
+          <a href="carrito.html" id="carrito-btn">
+            <img src="img/car.svg" id="img-carrito" alt="Carrito" />
+            <span id="cartCount">0</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -105,7 +122,7 @@
     <section class="pricing">
       <h2 class="section-title">Nuestros paquetes</h2>
       <div class="cards">
-        <article class="card">
+        <article class="card" id="paquete-basico">
           <div class="card-img"><img src="img/PB1.png" alt="Básico" /></div>
           <div class="card-body">
             <h3>Básico</h3>
@@ -119,7 +136,7 @@
           </div>
         </article>
 
-        <article class="card">
+        <article class="card" id="paquete-completo">
           <div class="badge">Más popular</div>
           <div class="card-img"><img src="img/Pb2.png" alt="Completo" /></div>
           <div class="card-body">
@@ -134,7 +151,7 @@
           </div>
         </article>
 
-        <article class="card">
+        <article class="card" id="paquete-spa">
           <div class="card-img"><img src="img/PB3.png" alt="Spa" /></div>
           <div class="card-body">
             <h3>Spa</h3>
@@ -158,20 +175,57 @@
   </footer>
 
   <script>
-    // 1. FUNCIÓN PARA ENVIAR A SERVICIOS CONTRATADOS
+    const STORAGE = "doggie_cart_shop_v1";
+
+    function updateBadge() {
+      try {
+        const cart = JSON.parse(localStorage.getItem(STORAGE) || "[]");
+        const badge = document.getElementById("cartCount");
+        if (badge) badge.textContent = cart.length;
+      } catch(e) {}
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateBadge();
+
+      // Login/usuario
+      const userName = localStorage.getItem('doggie_user');
+      const userLink = document.getElementById('userLink');
+      const userText = document.getElementById('userText');
+      const menuUsuario = document.getElementById('menu-usuario');
+
+      if (userName) {
+        userText.innerText = "Hola, " + userName;
+        userLink.href = "#";
+
+        const logoutBtn = document.createElement('a');
+        logoutBtn.innerText = "Salir";
+        logoutBtn.className = "logout-button";
+        logoutBtn.onclick = (e) => {
+          e.preventDefault();
+          if (confirm("¿Quieres cerrar sesión?")) {
+            localStorage.removeItem('doggie_user');
+            window.location.reload();
+          }
+        };
+        menuUsuario.appendChild(logoutBtn);
+      }
+    });
+
+    window.addEventListener('storage', updateBadge);
+
+    // --- LÓGICA DE SERVICIOS ---
     async function contratarServicio(nombreServicio, precioServicio) {
-      // Tomamos el nombre del login (doggie_user)
       const nombreUsuario = localStorage.getItem('doggie_user') || "Usuario Invitado";
 
       const datosServicio = {
-        tipoServicio: nombreServicio, // Ajustado para tu colección de servicios
+        tipoServicio: nombreServicio,
         usuario: nombreUsuario,
         precio: precioServicio,
         fecha: new Date().toLocaleString()
       };
 
       try {
-        // CAMBIO DE RUTA: Ahora apunta a servicioscontratados
         const respuesta = await fetch('/api/servicios/contratar', { 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -179,7 +233,7 @@
         });
 
         if (respuesta.ok) {
-          alert(`✅ ¡Éxito! El servicio "${nombreServicio}" se registró para ${nombreUsuario} en servicioscontratados.`);
+          alert(`✅ ¡Éxito! El servicio "${nombreServicio}" se registró para ${nombreUsuario}.`);
         } else {
           alert("❌ Error al registrar en la base de datos de servicios.");
         }
@@ -189,9 +243,7 @@
       }
     }
 
-    // 2. ACTIVAR BOTONES
     document.addEventListener("DOMContentLoaded", () => {
-      
       // Botones de los 3 paquetes
       document.querySelectorAll('.pricing .btn').forEach((boton) => {
         boton.addEventListener('click', (e) => {
@@ -200,7 +252,6 @@
           const nombre = card.querySelector('h3').innerText;
           const precioRaw = card.querySelector('.price').innerText;
           const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
-          
           contratarServicio(nombre, precio);
         });
       });
@@ -213,7 +264,6 @@
           const cardMem = e.target.closest('.membership-card');
           const precioRaw = cardMem.querySelector('.big-price').innerText;
           const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
-          
           contratarServicio("Membresía Mensual", precio);
         });
       }

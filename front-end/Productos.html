@@ -8,19 +8,41 @@
   <link rel="stylesheet" href="shop.css" />
   <link rel="stylesheet" href="BWap/style2.css">
   <link rel="stylesheet" href="header.css">
+
+  <style>
+    /* ===== Botón carrito navbar ===== */
+    #carrito-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+    }
+    #cartCount {
+      background: #ff4d4d;
+      color: #fff;
+      border-radius: 50%;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 18px;
+      text-align: center;
+      line-height: 18px;
+    }
+  </style>
 </head>
 
 <body>
 
-   <Link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-<a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más 
+  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más 
 información" class="float pulse" target="_blank"> 
-<i class="fa fa-whatsapp my-float "></i>
-</a>
+    <i class="fa fa-whatsapp my-float "></i>
+  </a>
 
-
-  <!-- HEADER COMPACTO -->
+  <!-- HEADER -->
   <header class="shop-header">
     <div class="menu container">
       <a href="Index.html" class="logo">
@@ -36,35 +58,22 @@ información" class="float pulse" target="_blank">
         <ul>
           <li><a href="index.html">Inicio</a></li>
           <li><a href="servicios.html">Servicios</a></li>
-          <li><a class="active" href="shop.html">Productos</a></li>
+          <li><a class="active" href="Productos.html">Productos</a></li>
           <li><a href="Contacto.html">Contacto</a></li>
+          <li id="menu-usuario">
+            <a href="login.html" id="userLink">
+              <span id="userText">Cuenta</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
-      <!-- Carrito dropdown -->
+      <!-- ===== BOTÓN carrito → lleva a carrito.html ===== -->
       <div class="shop-cart">
-        <ul>
-          <li class="submenu">
-            <img src="img/car.svg" id="img-carrito" alt="Carrito de compras" />
-            <span class="cart-badge" id="cartCount">0</span>
-
-            <div id="carrito">
-              <table id="lista-carrito">
-                <thead>
-                  <tr>
-                    <th>Imagen</th>
-                    <th>Nombre</th>
-                    <th>Precio</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="miniCartBody"></tbody>
-              </table>
-
-              <a href="#" id="vaciar-carrito" class="btn-3">Vaciar Carrito</a>
-            </div>
-          </li>
-        </ul>
+        <a href="carrito.html" id="carrito-btn">
+          <img src="img/car.svg" id="img-carrito" alt="Carrito de compras" />
+          <span id="cartCount">0</span>
+        </a>
       </div>
     </div>
   </header>
@@ -112,7 +121,7 @@ información" class="float pulse" target="_blank">
         <div class="shop-products-top">
           <div>
             <h2 class="shop-title">Productos</h2>
-            <p class="shop-subtitle">Da clic en “Ver” para detalle con fotos, descripción y similares.</p>
+            <p class="shop-subtitle">Da clic en "Ver" para detalle con fotos, descripción y similares.</p>
           </div>
         </div>
 
@@ -205,7 +214,7 @@ información" class="float pulse" target="_blank">
     </div>
   </main>
 
-  <!--PRODUCTO -->
+  <!-- MODAL PRODUCTO -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal-overlay" id="modalClose"></div>
 
@@ -227,24 +236,73 @@ información" class="float pulse" target="_blank">
             <span class="pill" id="mCat">Categoría</span>
           </div>
 
+          <!-- Selector de cantidad -->
+          <div style="display:flex; align-items:center; gap:10px; margin: 10px 0;">
+            <label for="mQty" style="font-size:14px; font-weight:600;">Cantidad:</label>
+            <input type="number" id="mQty" value="1" min="1"
+              style="width:60px; padding:5px 8px; border-radius:8px; border:1px solid #ccc; font-size:14px; text-align:center;">
+          </div>
+
           <div class="modal-btns">
             <button class="btn" id="mAdd" type="button">Agregar al carrito</button>
-            <button class="btn btn-ghost" id="mBuy" type="button">Comprar (demo)</button>
+            <button class="btn btn-ghost" id="mBuy" type="button">Comprar Ahora</button>
           </div>
 
           <hr class="divider" />
 
           <h4 class="subtitle">Productos similares</h4>
           <div class="simGrid" id="mSimilar"></div>
-
-          <p class="smallNote">Luego conectamos pago real + base de datos.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Java Script-->
   <script src="shop.js"></script>
+
+  <script>
+    const STORAGE = "doggie_cart_shop_v1";
+
+    function updateBadge() {
+      try {
+        const cart = JSON.parse(localStorage.getItem(STORAGE) || "[]");
+        const badge = document.getElementById("cartCount");
+        if (badge) badge.textContent = cart.length;
+      } catch(e) {}
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateBadge();
+
+      // Login/usuario
+      const userName = localStorage.getItem('doggie_user');
+      const userLink = document.getElementById('userLink');
+      const userText = document.getElementById('userText');
+      const menuUsuario = document.getElementById('menu-usuario');
+
+      if (userName) {
+        userText.innerText = "Hola, " + userName;
+        userLink.href = "#";
+
+        const logoutBtn = document.createElement('a');
+        logoutBtn.innerText = "Salir";
+        logoutBtn.className = "logout-button";
+        logoutBtn.onclick = (e) => {
+          e.preventDefault();
+          if (confirm("¿Quieres cerrar sesión?")) {
+            localStorage.removeItem('doggie_user');
+            window.location.reload();
+          }
+        };
+        menuUsuario.appendChild(logoutBtn);
+      }
+    });
+
+    // Actualizar badge cuando se agrega al carrito desde shop.js
+    window.addEventListener('storage', updateBadge);
+    
+    // También escuchar el evento personalizado por si shop.js agrega sin recargar
+    document.addEventListener('carritoActualizado', updateBadge);
+  </script>
 
 </body>
 </html>
