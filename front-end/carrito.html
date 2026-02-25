@@ -520,34 +520,40 @@
 
         // Comprar ahora
         document.getElementById("btnComprarAhora").addEventListener("click", async () => {
-        const cart = getCart();
-        if (!cart.length) return;
+    const cart = getCart();
+    if (!cart.length) return;
 
-        const agrupado = {};
-        cart.forEach(item => {
-            if (!agrupado[item.id]) agrupado[item.id] = { ...item, cantidad: 1 };
-            else agrupado[item.id].cantidad++;
+    // Obtener el usuario del localStorage (como lo hacían antes)
+    const nombreUsuario = localStorage.getItem('doggie_user') || "Usuario Invitado";
+
+    const agrupado = {};
+    cart.forEach(item => {
+        if (!agrupado[item.id]) agrupado[item.id] = { ...item, cantidad: 1 };
+        else agrupado[item.id].cantidad++;
+    });
+
+    const items = Object.values(agrupado);
+
+    try {
+        const respuesta = await fetch('/api/crear-sesion-stripe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                items, 
+                usuario: nombreUsuario // Enviamos el nombre aquí
+            })
         });
 
-        const items = Object.values(agrupado);
-
-        try {
-            const respuesta = await fetch('/api/crear-sesion-stripe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items })
-            });
-
-            if (respuesta.ok) {
-                const data = await respuesta.json();
-                window.location.href = data.url; 
-            } else {
-                alert("Error al iniciar el pago.");
-            }
-        } catch (error) {
-            alert("Error de conexión con el servidor.");
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            window.location.href = data.url; 
+        } else {
+            alert("Error al iniciar el pago.");
         }
-    });
+    } catch (error) {
+        alert("Error de conexión con el servidor.");
+    }
+});
 
         // Login/usuario
         document.addEventListener("DOMContentLoaded", () => {

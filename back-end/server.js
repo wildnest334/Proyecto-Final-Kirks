@@ -181,14 +181,26 @@ app.post('/api/contacto', async (req, res) => {
 
 app.post('/api/crear-sesion-stripe', async (req, res) => {
     try {
-        const { items } = req.body;
-        
+        const { items, usuario } = req.body; // Recibimos el usuario del frontend
+
+        // 1. Guardar el registro en MongoDB Atlas (Colección productovendidos)
+        for (const item of items) {
+            const nuevaVenta = new ProductoVendido({
+                usuario: usuario || "Invitado",
+                nombreProducto: item.title,
+                precio: Number(item.price),
+                cantidad: item.cantidad,
+                total: Number(item.price) * item.cantidad,
+                fecha: new Date()
+            });
+            await nuevaVenta.save();
+        }
+
+        // 2. Crear la sesión de Stripe
         const lineItems = items.map(item => ({
             price_data: {
                 currency: 'mxn',
-                product_data: {
-                    name: item.title,
-                },
+                product_data: { name: item.title },
                 unit_amount: Math.round(Number(item.price) * 100), 
             },
             quantity: item.cantidad,
@@ -204,7 +216,8 @@ app.post('/api/crear-sesion-stripe', async (req, res) => {
 
         res.json({ url: session.url });
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear la sesión de pago' });
+        console.error("Error en Stripe/DB:", error);
+        res.status(500).json({ error: 'Error al procesar la compra' });
     }
 });
 
