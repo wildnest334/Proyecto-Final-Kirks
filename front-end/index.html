@@ -92,35 +92,40 @@ información" class="float pulse" target="_blank">
     <header class="header">
         <img class="bg" src="img/bg.png" alt="">
         <div class="menu container">
-            <a href="#" class="logo"><img src="img/Logo.png" alt=""></a>
-            <input type="checkbox" id="menu">
+            <!-- LOGO (IZQUIERDA) -->
+            <a href="index.html" class="logo">
+                <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
+            </a>
+
+            <input type="checkbox" id="menu" />
             <label for="menu">
-                <img src="img/menu.png" class="menu-icono" alt="perros">
+                <img src="img/menu.png" class="menu-icono" alt="Menú" />
             </label>
+
+            <!-- LINKS (CENTRO) -->
             <nav class="navbar">
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
                     <li><a href="servicios.html">Servicios</a></li>
                     <li><a href="Productos.html">Productos</a></li>
                     <li><a href="Contacto.html">Contacto</a></li>
-                    <!-- ===== Menú de usuario/login ===== -->
-                    <li id="menu-usuario">
-                        <a href="login.html" id="userLink">
-                            <span id="userText">Cuenta</span>
-                        </a>
-                    </li>
                 </ul>
             </nav>
-            <div>
-                <ul>
-                    <li>
-                        <!-- ===== BOTÓN carrito → lleva a carrito.html ===== -->
-                        <a href="carrito.html" id="carrito-btn">
-                            <img src="img/car.svg" id="img-carrito" alt="carrito">
-                            <span id="cartCount">0</span>
-                        </a>
-                    </li>
-                </ul>
+
+            <!-- LOGIN Y CARRITO (DERECHA) -->
+            <div class="menu-actions">
+                <!-- Login -->
+                <div id="menu-usuario">
+                    <a href="login.html" id="userLink">
+                        <span id="userText">Cuenta</span>
+                    </a>
+                </div>
+                
+                <!-- Carrito (oculto por defecto, se muestra si hay usuario en script.js) -->
+                <a href="carrito.html" id="carrito-btn" style="display: none;">
+                    <img src="img/car.svg" id="img-carrito" alt="Carrito" />
+                    <span id="cartCount">0</span>
+                </a>
             </div>
         </div>
 
@@ -377,48 +382,5 @@ información" class="float pulse" target="_blank">
 
 </body>
 <script src="script.js"></script>
-
-<script>
-    const STORAGE = "doggie_cart_shop_v1";
-
-    // Actualizar badge del carrito
-    function updateBadge() {
-        try {
-            const cart = JSON.parse(localStorage.getItem(STORAGE) || "[]");
-            const badge = document.getElementById("cartCount");
-            if (badge) badge.textContent = cart.length;
-        } catch(e) {}
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        updateBadge();
-
-        // Login/usuario
-        const userName = localStorage.getItem('doggie_user');
-        const userLink = document.getElementById('userLink');
-        const userText = document.getElementById('userText');
-        const menuUsuario = document.getElementById('menu-usuario');
-
-        if (userName) {
-            userText.innerText = "Hola, " + userName;
-            userLink.href = "#";
-
-            const logoutBtn = document.createElement('a');
-            logoutBtn.innerText = "Salir";
-            logoutBtn.className = "logout-button";
-            logoutBtn.onclick = (e) => {
-                e.preventDefault();
-                if (confirm("¿Quieres cerrar sesión?")) {
-                    localStorage.removeItem('doggie_user');
-                    window.location.reload();
-                }
-            };
-            menuUsuario.appendChild(logoutBtn);
-        }
-    });
-
-    // Escuchar cambios en el localStorage (cuando se agrega desde Productos.html)
-    window.addEventListener('storage', updateBadge);
-</script>
 
 </html>

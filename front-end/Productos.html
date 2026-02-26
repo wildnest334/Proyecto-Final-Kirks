@@ -45,6 +45,7 @@ información" class="float pulse" target="_blank">
   <!-- HEADER -->
   <header class="shop-header">
     <div class="menu container">
+      <!-- LOGO (IZQUIERDA) -->
       <a href="Index.html" class="logo">
         <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
       </a>
@@ -54,26 +55,32 @@ información" class="float pulse" target="_blank">
         <img src="img/menu.png" class="menu-icono" alt="Icono de menú" />
       </label>
 
+      <!-- LINKS (CENTRO) -->
       <nav class="navbar">
         <ul>
           <li><a href="index.html">Inicio</a></li>
           <li><a href="servicios.html">Servicios</a></li>
           <li><a class="active" href="Productos.html">Productos</a></li>
           <li><a href="Contacto.html">Contacto</a></li>
-          <li id="menu-usuario">
-            <a href="login.html" id="userLink">
-              <span id="userText">Cuenta</span>
-            </a>
-          </li>
         </ul>
       </nav>
 
-      <!-- ===== BOTÓN carrito → lleva a carrito.html ===== -->
-      <div class="shop-cart">
-        <a href="carrito.html" id="carrito-btn">
-          <img src="img/car.svg" id="img-carrito" alt="Carrito de compras" />
-          <span id="cartCount">0</span>
-        </a>
+      <!-- LOGIN Y CARRITO (DERECHA) -->
+      <div class="menu-actions">
+        <!-- Login -->
+        <div id="menu-usuario">
+          <a href="login.html" id="userLink">
+            <span id="userText">Cuenta</span>
+          </a>
+        </div>
+        
+        <!-- Carrito (oculto por defecto) -->
+        <div class="shop-cart" id="carrito-wrapper" style="display: none;">
+          <a href="carrito.html" id="carrito-btn">
+            <img src="img/car.svg" id="img-carrito" alt="Carrito de compras" />
+            <span id="cartCount">0</span>
+          </a>
+        </div>
       </div>
     </div>
   </header>
@@ -257,52 +264,8 @@ información" class="float pulse" target="_blank">
     </div>
   </div>
 
+  <script src="script.js"></script>
   <script src="shop.js"></script>
-
-  <script>
-    const STORAGE = "doggie_cart_shop_v1";
-
-    function updateBadge() {
-      try {
-        const cart = JSON.parse(localStorage.getItem(STORAGE) || "[]");
-        const badge = document.getElementById("cartCount");
-        if (badge) badge.textContent = cart.length;
-      } catch(e) {}
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      updateBadge();
-
-      // Login/usuario
-      const userName = localStorage.getItem('doggie_user');
-      const userLink = document.getElementById('userLink');
-      const userText = document.getElementById('userText');
-      const menuUsuario = document.getElementById('menu-usuario');
-
-      if (userName) {
-        userText.innerText = "Hola, " + userName;
-        userLink.href = "#";
-
-        const logoutBtn = document.createElement('a');
-        logoutBtn.innerText = "Salir";
-        logoutBtn.className = "logout-button";
-        logoutBtn.onclick = (e) => {
-          e.preventDefault();
-          if (confirm("¿Quieres cerrar sesión?")) {
-            localStorage.removeItem('doggie_user');
-            window.location.reload();
-          }
-        };
-        menuUsuario.appendChild(logoutBtn);
-      }
-    });
-
-    // Actualizar badge cuando se agrega al carrito desde shop.js
-    window.addEventListener('storage', updateBadge);
-    
-    // También escuchar el evento personalizado por si shop.js agrega sin recargar
-    document.addEventListener('carritoActualizado', updateBadge);
-  </script>
 
 </body>
 </html>

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const STORAGE = "doggie_cart_shop_v1";
+  // const STORAGE = "doggie_cart_shop_v1"; // Ya no se usa aquí, se usa en script.js
   const PRODUCTOS_STORAGE = "doggie_productos_v1";
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -144,27 +144,47 @@ const PRODUCTOS_BASE = [
   ];
 
   // ================================================
-  // MANEJO DE PRODUCTOS (base + los del admin en BD)
+  // MANEJO DE PRODUCTOS (base + API)
   // ================================================
-  function getProductosAdmin() {
-    try { return JSON.parse(localStorage.getItem(PRODUCTOS_STORAGE) || "[]"); }
-    catch { return []; }
+  
+  // Función para obtener productos desde la API
+  async function getProductosAPI() {
+    try {
+      const res = await fetch('/api/productos');
+      if (!res.ok) throw new Error('Error al obtener productos del servidor');
+      const data = await res.json();
+      return Array.isArray(data) ? data : (data.productos || []);
+    } catch (error) {
+      console.warn("Error de API:", error);
+      return []; 
+    }
   }
 
-  function setProductosAdmin(items) {
-    localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(items));
-  }
-
-  function getTodosLosProductos() {
-    return [...PRODUCTOS_BASE, ...getProductosAdmin()];
+  async function getTodosLosProductos() {
+    const productosAPI = await getProductosAPI();
+    // Mapear los productos de la API
+    const productosFormateados = productosAPI.map(p => ({
+      id: p._id || p.id,
+      title: p.title,
+      price: p.price,
+      cat: p.cat,
+      tags: p.tags,
+      desc: p.desc,
+      img: p.img
+    }));
+    return [...PRODUCTOS_BASE, ...productosFormateados];
   }
 
   // ================================================
   // RENDERIZAR GRID DE PRODUCTOS
   // ================================================
-  function renderGrid() {
+  async function renderGrid() {
     if (!grid) return;
-    const productos = getTodosLosProductos();
+    
+    // Indicador de carga simple
+    grid.innerHTML = '<div style="width:100%; text-align:center; padding:20px;">Cargando productos...</div>';
+
+    const productos = await getTodosLosProductos();
 
     grid.innerHTML = productos.map(p => `
       <article class="card"
@@ -350,48 +370,32 @@ const PRODUCTOS_BASE = [
 
         if (respuesta.ok) {
           const result = await respuesta.json();
-          // Guardar también en localStorage como respaldo
-          const productosAdmin = getProductosAdmin();
-          if (esEdicion) {
-            const idx = productosAdmin.findIndex(p => p.id === producto.id);
-            if (idx !== -1) {
-              productosAdmin[idx] = { ...productosAdmin[idx], ...datos };
-            }
-          } else {
-            const nuevoId = result.producto?._id || 'local_' + Date.now();
-            productosAdmin.push({ id: nuevoId, ...datos });
-          }
-          setProductosAdmin(productosAdmin);
+          // Guardar también en localStorage como respaldo (opcional, si se desea).
+          // Pero aquí solo actualizamos el grid.
           adminModal.remove();
-          renderGrid();
+          await renderGrid();
           alert(esEdicion ? "✅ Producto actualizado." : "✅ Producto agregado.");
         } else {
           const err = await respuesta.json();
-          // Si falla el servidor, guardar solo en localStorage
-          if (!esEdicion) {
-            const productosAdmin = getProductosAdmin();
-            productosAdmin.push({ id: 'local_' + Date.now(), ...datos });
-            setProductosAdmin(productosAdmin);
-            adminModal.remove();
-            renderGrid();
-            alert("✅ Producto agregado localmente.");
-          } else {
-            alert("Error: " + (err.msg || err.error || "No se pudo guardar"));
-          }
+          alert("Error: " + (err.msg || err.error || "No se pudo guardar"));
         }
       } catch (error) {
-        // Sin conexión: guardar en localStorage
-        const productosAdmin = getProductosAdmin();
+        // Sin conexión: guardar en localStorage como fallback
+        console.error(error);
+        const getLocal = () => { try { return JSON.parse(localStorage.getItem(PRODUCTOS_STORAGE) || "[]"); } catch { return []; } };
+        const setLocal = (items) => localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(items));
+
+        const productosAdmin = getLocal();
         if (esEdicion) {
           const idx = productosAdmin.findIndex(p => p.id === producto.id);
           if (idx !== -1) productosAdmin[idx] = { ...productosAdmin[idx], ...datos };
         } else {
           productosAdmin.push({ id: 'local_' + Date.now(), ...datos });
         }
-        setProductosAdmin(productosAdmin);
+        setLocal(productosAdmin);
         adminModal.remove();
-        renderGrid();
-        alert(esEdicion ? "✅ Cambios guardados localmente." : "✅ Producto agregado localmente.");
+        await renderGrid();
+        alert(esEdicion ? "⚠️ Sin conexión. Guardado localmente." : "⚠️ Sin conexión. Agregado localmente.");
       }
     });
   }
@@ -403,10 +407,10 @@ const PRODUCTOS_BASE = [
     if (!esAdmin) return;
 
     $$(".btn-admin-edit").forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const id = btn.dataset.id;
-        const todos = getTodosLosProductos();
+        const todos = await getTodosLosProductos();
         const producto = todos.find(p => p.id === id);
         if (producto) abrirModalAdmin(producto);
       });
@@ -425,40 +429,33 @@ const PRODUCTOS_BASE = [
             method: 'DELETE',
             headers: { 'x-auth-token': token }
           });
-          // Eliminar también de localStorage
-          const productosAdmin = getProductosAdmin().filter(p => p.id !== id);
-          setProductosAdmin(productosAdmin);
-          renderGrid();
-          alert("🗑️ Producto eliminado.");
+          
+          if (respuesta.ok) {
+             await renderGrid();
+             alert("🗑️ Producto eliminado.");
+          } else {
+             const err = await respuesta.json();
+             alert("Error al eliminar en servidor: " + (err.msg || err.error));
+          }
+
         } catch (error) {
-          // Sin conexión: eliminar solo de localStorage
-          const productosAdmin = getProductosAdmin().filter(p => p.id !== id);
-          setProductosAdmin(productosAdmin);
-          renderGrid();
-          alert("🗑️ Producto eliminado localmente.");
+          // Fallback offline
+          console.error(error);
+          const getLocal = () => { try { return JSON.parse(localStorage.getItem(PRODUCTOS_STORAGE) || "[]"); } catch { return []; } };
+          const setLocal = (items) => localStorage.setItem(PRODUCTOS_STORAGE, JSON.stringify(items));
+          
+          const productosAdmin = getLocal().filter(p => p.id !== id);
+          setLocal(productosAdmin);
+          await renderGrid();
+          alert("🗑️ Producto eliminado localmente (sin conexión).");
         }
       });
     });
   }
 
   // ================================================
-  // CARRITO
+  // CARRITO (Usando funciones globales de script.js)
   // ================================================
-  function getCart() {
-    try { return JSON.parse(localStorage.getItem(STORAGE) || "[]"); }
-    catch { return []; }
-  }
-
-  function setCart(items) {
-    localStorage.setItem(STORAGE, JSON.stringify(items));
-    updateBadge();
-  }
-
-  function updateBadge() {
-    if (!cartCount) return;
-    cartCount.textContent = getCart().length;
-  }
-
   function addToCartFromCard(card) {
     const item = {
       id: card.dataset.id,
@@ -466,9 +463,9 @@ const PRODUCTOS_BASE = [
       price: card.dataset.price,
       img: card.dataset.img
     };
-    const cart = getCart();
+    const cart = window.getCart();
     cart.push(item);
-    setCart(cart);
+    window.setCart(cart);
     alert("Producto agregado al carrito.");
   }
 
@@ -548,9 +545,9 @@ const PRODUCTOS_BASE = [
   if (mAdd) {
     mAdd.addEventListener("click", () => {
       if (!currentProduct) return;
-      const cart = getCart();
+      const cart = window.getCart();
       cart.push({ id: currentProduct.id, title: currentProduct.title, price: currentProduct.price, img: currentProduct.img });
-      setCart(cart);
+      window.setCart(cart);
       alert("Agregado al carrito.");
     });
   }
@@ -598,10 +595,6 @@ const PRODUCTOS_BASE = [
   // ================================================
   // FILTROS
   // ================================================
-  function moneyMXN(n) {
-    return "$" + Number(n || 0).toFixed(0) + " MXN";
-  }
-
   function tagsOf(str) {
     return String(str || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
   }
@@ -673,6 +666,6 @@ const PRODUCTOS_BASE = [
   // ================================================
   // INICIALIZAR
   // ================================================
-  updateBadge();
+  // updateBadge(); // Ya se hace en script.js
   renderGrid(); // renderiza productos base + admin
 });
