@@ -1,8 +1,3 @@
-/**
- * MODELO DE USUARIO (Usuario.js)
- * Define la estructura de los datos en MongoDB y la lógica de seguridad previa al guardado.
- */
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Librería para hashing de contraseñas
 
@@ -32,7 +27,7 @@ const UsuarioSchema = new mongoose.Schema({
   },
   metodoRegistro: { 
     type: String, 
-    enum: ['Formulario', 'Facebook', 'Gmail'], 
+    enum: ['Formulario', 'GitHub', 'Google'], 
     default: 'Formulario' 
   }
 });
@@ -65,3 +60,5 @@ UsuarioSchema.pre('save', async function() {
 // 3. EXPORTACIÓN DEL MODELO
 // 'Usuario' es el nombre que usará Mongoose para crear la colección en la base de datos (usuarios)
 module.exports = mongoose.model('Usuario', UsuarioSchema);
+
+
