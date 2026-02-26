@@ -19,6 +19,7 @@
   "description": "Aqui estara nuestro proyecto final de el equipo de los Kirks",
   "main": "index.js",
   "scripts": {
+    "start": "cd back-end && node server.js",
     "test": "jest"
   },
   "repository": {
