@@ -4,6 +4,10 @@ const path = require('path');
 const connectDB = require('./db.js');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middlewares/authMiddleware');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -21,13 +25,99 @@ const PORT = process.env.PORT || 4000;
 connectDB();
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize()); 
+
+// ================================================
+// CONFIGURACIÓN DE PASSPORT (GOOGLE Y GITHUB)
+// ================================================
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:4000/auth/google/callback"
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+        let usuario = await Usuario.findOne({ correo: profile.emails[0].value });
+        if (!usuario) {
+            usuario = new Usuario({
+                nombreUsuario: profile.displayName,
+                correo: profile.emails[0].value,
+                password: "oauth_account_google",
+                metodoRegistro: 'Google',
+                role: 'user'
+            });
+            await usuario.save();
+        }
+        return done(null, usuario);
+    } catch (err) {
+        return done(err, null);
+    }
+  }
+));
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://localhost:4000/auth/github/callback"
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+        let correoGH = profile.emails ? profile.emails[0].value : `${profile.username}@github.com`;
+        let usuario = await Usuario.findOne({ correo: correoGH });
+        if (!usuario) {
+            usuario = new Usuario({
+                nombreUsuario: profile.displayName || profile.username,
+                correo: correoGH,
+                password: "oauth_account_github",
+                metodoRegistro: 'GitHub',
+                role: 'user'
+            });
+            await usuario.save();
+        }
+        return done(null, usuario);
+    } catch (err) {
+        return done(err, null);
+    }
+  }
+));
+
+// ================================================
+// RUTAS DE AUTENTICACIÓN (OAUTH)
+// ================================================
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { session: false, failureRedirect: '/login.html' }),
+  (req, res) => {
+    const token = jwt.sign(
+        { id: req.user._id, role: req.user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+    res.redirect(`/index.html?login_oauth=true&user=${encodeURIComponent(req.user.nombreUsuario)}&token=${token}&role=${req.user.role}`);
+  }
+);
+
+app.get('/auth/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+app.get('/auth/github/callback', 
+  passport.authenticate('github', { session: false, failureRedirect: '/login.html' }),
+  (req, res) => {
+    const token = jwt.sign(
+        { id: req.user._id, role: req.user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+    res.redirect(`/index.html?login_oauth=true&user=${encodeURIComponent(req.user.nombreUsuario)}&token=${token}&role=${req.user.role}`);
+  }
+);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/pagos', pagosRoutes);
 
-
-
 // MIDDLEWARE: verificar que el usuario es ADMIN
-
 function soloAdmin(req, res, next) {
     const token = req.header('x-auth-token');
     if (!token) return res.status(401).json({ msg: 'Sin token, acceso denegado' });
@@ -44,9 +134,7 @@ function soloAdmin(req, res, next) {
     }
 }
 
-// ================================================
-// LOGIN — devuelve role para que el frontend sepa
-// ================================================
+// LOGIN MANUAL
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { correo, password } = req.body;
@@ -62,7 +150,6 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(401).json({ msg: 'Credenciales incorrectas' });
         }
 
-        // Generar token con role incluido
         const token = jwt.sign(
             { id: usuario._id, role: usuario.role },
             process.env.JWT_SECRET,
@@ -73,7 +160,7 @@ app.post('/api/auth/login', async (req, res) => {
             success: true,
             token,
             nombre: usuario.nombreUsuario,
-            role: usuario.role  // ← el frontend guarda esto en localStorage
+            role: usuario.role 
         });
 
     } catch (error) {
@@ -82,11 +169,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// ================================================
-// CRUD DE PRODUCTOS (solo admin puede crear/editar/borrar)
-// ================================================
-
-// GET — obtener todos los productos (cualquiera puede ver)
+// CRUD DE PRODUCTOS
 app.get('/api/productos', async (req, res) => {
     try {
         const productos = await Producto.find().sort({ createdAt: -1 });
@@ -96,7 +179,6 @@ app.get('/api/productos', async (req, res) => {
     }
 });
 
-// POST — agregar producto (solo admin)
 app.post('/api/productos', soloAdmin, async (req, res) => {
     try {
         const { title, price, cat, tags, desc, img } = req.body;
@@ -108,7 +190,6 @@ app.post('/api/productos', soloAdmin, async (req, res) => {
     }
 });
 
-// PUT — editar producto (solo admin)
 app.put('/api/productos/:id', soloAdmin, async (req, res) => {
     try {
         const actualizado = await Producto.findByIdAndUpdate(
@@ -123,7 +204,6 @@ app.put('/api/productos/:id', soloAdmin, async (req, res) => {
     }
 });
 
-// DELETE — borrar producto (solo admin)
 app.delete('/api/productos/:id', soloAdmin, async (req, res) => {
     try {
         await Producto.findByIdAndDelete(req.params.id);
@@ -133,10 +213,7 @@ app.delete('/api/productos/:id', soloAdmin, async (req, res) => {
     }
 });
 
-// ================================================
-// RUTAS EXISTENTES (sin cambios)
-// ================================================
-
+// SERVICIOS Y VENTAS
 app.post('/api/servicios/contratar', authMiddleware, async (req, res) => {
     try {
         const { usuario, tipoServicio, precio } = req.body;
@@ -181,12 +258,12 @@ app.post('/api/contacto', async (req, res) => {
     }
 });
 
-
-// Archivos estáticos
+// ARCHIVOS ESTÁTICOS
 const publicPath = path.join(__dirname, '..', 'front-end');
 app.use(express.static(publicPath));
 
-app.get(/.*/, (req, res) => {
+// FALLBACK PARA SPA (CORREGIDO PARA TU VERSIÓN DE NODE)
+app.use((req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
