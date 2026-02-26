@@ -8,54 +8,33 @@
   <link rel="stylesheet" href="shop.css" />
   <link rel="stylesheet" href="BWap/style2.css">
   <link rel="stylesheet" href="header.css">
-
-  <style>
-    /* ===== Botón carrito navbar ===== */
-    #carrito-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      cursor: pointer;
-      position: relative;
-    }
-    #cartCount {
-      background: #ff4d4d;
-      color: #fff;
-      border-radius: 50%;
-      padding: 1px 6px;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 18px;
-      text-align: center;
-      line-height: 18px;
-    }
-  </style>
 </head>
 
 <body>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más 
-información" class="float pulse" target="_blank"> 
-    <i class="fa fa-whatsapp my-float "></i>
+  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más información"
+     class="float pulse" target="_blank">
+    <i class="fa fa-whatsapp my-float"></i>
   </a>
 
-  <!-- HEADER -->
+  <!-- ===== HEADER ===== -->
   <header class="shop-header">
     <div class="menu container">
-      <!-- LOGO (IZQUIERDA) -->
-      <a href="Index.html" class="logo">
-        <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
-      </a>
 
+      <!-- HAMBURGUESA (izquierda en móvil) -->
       <input type="checkbox" id="menu" />
       <label for="menu">
         <img src="img/menu.png" class="menu-icono" alt="Icono de menú" />
       </label>
 
-      <!-- LINKS (CENTRO) -->
+      <!-- LOGO (centro en móvil) -->
+      <a href="index.html" class="logo">
+        <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
+      </a>
+
+      <!-- LINKS -->
       <nav class="navbar">
         <ul>
           <li><a href="index.html">Inicio</a></li>
@@ -65,23 +44,21 @@ información" class="float pulse" target="_blank">
         </ul>
       </nav>
 
-      <!-- LOGIN Y CARRITO (DERECHA) -->
+      <!-- CUENTA + CARRITO (derecha) -->
       <div class="menu-actions">
-        <!-- Login -->
         <div id="menu-usuario">
           <a href="login.html" id="userLink">
             <span id="userText">Cuenta</span>
           </a>
         </div>
-        
-        <!-- Carrito (oculto por defecto) -->
-        <div class="shop-cart" id="carrito-wrapper" style="display: none;">
+        <div id="carrito-wrapper" style="display:none;">
           <a href="carrito.html" id="carrito-btn">
             <img src="img/car.svg" id="img-carrito" alt="Carrito de compras" />
             <span id="cartCount">0</span>
           </a>
         </div>
       </div>
+
     </div>
   </header>
 
@@ -123,7 +100,6 @@ información" class="float pulse" target="_blank">
         </div>
       </aside>
 
-      <!-- PRODUCTOS -->
       <section class="shop-products">
         <div class="shop-products-top">
           <div>
@@ -133,20 +109,13 @@ información" class="float pulse" target="_blank">
         </div>
 
         <div class="grid" id="grid">
-
-          <!-- PRODUCTO 1 -->
           <article class="card"
-            data-id="p01"
-            data-title="Perfume Freshcare"
-            data-price="199"
-            data-cat="cuidado"
-            data-tags="cuidado,perfume,higiene,aroma"
+            data-id="p01" data-title="Perfume Freshcare" data-price="199"
+            data-cat="cuidado" data-tags="cuidado,perfume,higiene,aroma"
             data-desc="Perfume exclusivo para perros con aroma fresco y suave. Ideal para después del baño."
-            data-img="assets/img/shop_01.jpg"
-            data-img2="assets/img/shop_02.jpg"
-            data-img3="assets/img/shop_03.jpg">
+            data-img="img/pla1.png">
             <div class="card-img">
-              <img src="img/pla1.png" alt="Perfume Freshcare para perros" />
+              <img src="img/pla1.png" alt="Perfume Freshcare" />
               <div class="card-actions">
                 <button class="btn btn-ghost btnView" type="button">Ver</button>
                 <button class="btn btnAdd" type="button">Agregar</button>
@@ -161,19 +130,13 @@ información" class="float pulse" target="_blank">
             </div>
           </article>
 
-          <!-- PRODUCTO 2 -->
           <article class="card"
-            data-id="p02"
-            data-title="Collar Premium"
-            data-price="149"
-            data-cat="accesorios"
-            data-tags="accesorios,collar,paseo,pechera"
+            data-id="p02" data-title="Collar Premium" data-price="149"
+            data-cat="accesorios" data-tags="accesorios,collar,paseo,pechera"
             data-desc="Collar cómodo, resistente y con estilo. Ajustable para talla mediana."
-            data-img="assets/img/shop_02.jpg"
-            data-img2="assets/img/shop_04.jpg"
-            data-img3="assets/img/shop_05.jpg">
+            data-img="img/pla2.png">
             <div class="card-img">
-              <img src="assets/img/shop_02.jpg" alt="Collar Premium para perro" />
+              <img src="img/pla2.png" alt="Collar Premium" />
               <div class="card-actions">
                 <button class="btn btn-ghost btnView" type="button">Ver</button>
                 <button class="btn btnAdd" type="button">Agregar</button>
@@ -188,19 +151,13 @@ información" class="float pulse" target="_blank">
             </div>
           </article>
 
-          <!-- PRODUCTO 3 -->
           <article class="card"
-            data-id="p03"
-            data-title="Mordedera Antiestrés"
-            data-price="79"
-            data-cat="juguetes"
-            data-tags="juguetes,mordedera,entrenamiento,pelota"
+            data-id="p03" data-title="Mordedera Antiestrés" data-price="79"
+            data-cat="juguetes" data-tags="juguetes,mordedera,entrenamiento,pelota"
             data-desc="Juguete resistente para morder. Ayuda a liberar estrés y entretener."
-            data-img="assets/img/shop_03.jpg"
-            data-img2="assets/img/shop_06.jpg"
-            data-img3="assets/img/shop_07.jpg">
+            data-img="img/pla3.png">
             <div class="card-img">
-              <img src="assets/img/shop_03.jpg" alt="Mordedera Antiestrés para perro" />
+              <img src="img/pla3.png" alt="Mordedera Antiestrés" />
               <div class="card-actions">
                 <button class="btn btn-ghost btnView" type="button">Ver</button>
                 <button class="btn btnAdd" type="button">Agregar</button>
@@ -214,7 +171,6 @@ información" class="float pulse" target="_blank">
               </div>
             </div>
           </article>
-
         </div>
       </section>
 
@@ -224,39 +180,30 @@ información" class="float pulse" target="_blank">
   <!-- MODAL PRODUCTO -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal-overlay" id="modalClose"></div>
-
     <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Detalle del producto">
       <button class="modal-x" id="modalX" type="button" aria-label="Cerrar">✕</button>
-
       <div class="modal-content">
         <div class="modal-left">
           <img id="mImg" class="modal-img" src="" alt="Imagen del producto" />
           <div class="thumbs" id="mThumbs"></div>
         </div>
-
         <div class="modal-right">
           <h3 id="mTitle">Producto</h3>
           <p class="muted" id="mDesc"></p>
-
           <div class="modal-priceRow">
             <span class="priceBig" id="mPrice">$0 MXN</span>
             <span class="pill" id="mCat">Categoría</span>
           </div>
-
-          <!-- Selector de cantidad -->
-          <div style="display:flex; align-items:center; gap:10px; margin: 10px 0;">
-            <label for="mQty" style="font-size:14px; font-weight:600;">Cantidad:</label>
+          <div style="display:flex;align-items:center;gap:10px;margin:10px 0;">
+            <label for="mQty" style="font-size:14px;font-weight:600;">Cantidad:</label>
             <input type="number" id="mQty" value="1" min="1"
-              style="width:60px; padding:5px 8px; border-radius:8px; border:1px solid #ccc; font-size:14px; text-align:center;">
+              style="width:60px;padding:5px 8px;border-radius:8px;border:1px solid #ccc;font-size:14px;text-align:center;">
           </div>
-
           <div class="modal-btns">
             <button class="btn" id="mAdd" type="button">Agregar al carrito</button>
             <button class="btn btn-ghost" id="mBuy" type="button">Comprar Ahora</button>
           </div>
-
           <hr class="divider" />
-
           <h4 class="subtitle">Productos similares</h4>
           <div class="simGrid" id="mSimilar"></div>
         </div>
@@ -266,6 +213,5 @@ información" class="float pulse" target="_blank">
 
   <script src="script.js"></script>
   <script src="shop.js"></script>
-
 </body>
 </html>

@@ -7,50 +7,32 @@
   <link rel="stylesheet" href="servicios.css" />
   <link rel="stylesheet" href="BWap/style2.css">
   <link rel="stylesheet" href="header.css">
-
-  <style>
-    /* ===== Botón carrito navbar ===== */
-    #carrito-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #cartCount {
-      background: #ff4d4d;
-      color: #fff;
-      border-radius: 50%;
-      padding: 1px 6px;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 18px;
-      text-align: center;
-      line-height: 18px;
-    }
-  </style>
 </head>
 
 <body>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más información" class="float pulse" target="_blank"> 
-    <i class="fa fa-whatsapp my-float "></i>
+  <a href="https://api.whatsapp.com/send?phone=8136254170&text=Hola, me gustaria Obtener más información"
+     class="float pulse" target="_blank">
+    <i class="fa fa-whatsapp my-float"></i>
   </a>
 
+  <!-- ===== HEADER ===== -->
   <header class="header">
     <div class="menu container">
-      <!-- LOGO (IZQUIERDA) -->
-      <a href="index.html" class="logo">
-        <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
-      </a>
 
+      <!-- HAMBURGUESA (izquierda en móvil) -->
       <input type="checkbox" id="menu" />
       <label for="menu">
         <img src="img/menu.png" class="menu-icono" alt="Menú" />
       </label>
 
-      <!-- LINKS (CENTRO) -->
+      <!-- LOGO (centro en móvil) -->
+      <a href="index.html" class="logo">
+        <img src="img/Logo.png" alt="Logo Doggie Chic Studio" />
+      </a>
+
+      <!-- LINKS -->
       <nav class="navbar">
         <ul>
           <li><a href="index.html">Inicio</a></li>
@@ -60,21 +42,19 @@
         </ul>
       </nav>
 
-      <!-- LOGIN Y CARRITO (DERECHA) -->
+      <!-- CUENTA + CARRITO (derecha) -->
       <div class="menu-actions">
-        <!-- Login -->
         <div id="menu-usuario">
           <a href="login.html" id="userLink">
             <span id="userText">Cuenta</span>
           </a>
         </div>
-        
-        <!-- Carrito (oculto por defecto) -->
-        <a href="carrito.html" id="carrito-btn" style="display: none;">
+        <a href="carrito.html" id="carrito-btn" style="display:none;">
           <img src="img/car.svg" id="img-carrito" alt="Carrito" />
           <span id="cartCount">0</span>
         </a>
       </div>
+
     </div>
   </header>
 
@@ -179,61 +159,34 @@
 
   <script src="script.js"></script>
   <script>
-    // --- LÓGICA DE SERVICIOS ---
     async function contratarServicio(nombreServicio, precioServicio) {
       const nombreUsuario = localStorage.getItem('doggie_user') || "Usuario Invitado";
-
-      const datosServicio = {
-        tipoServicio: nombreServicio,
-        usuario: nombreUsuario,
-        precio: precioServicio,
-        fecha: new Date().toLocaleString()
-      };
-
+      const datosServicio = { tipoServicio: nombreServicio, usuario: nombreUsuario, precio: precioServicio, fecha: new Date().toLocaleString() };
       try {
-        // Ejemplo de fetch a un backend (ajusta la URL si es necesario)
-        /*
-        const respuesta = await fetch('/api/servicios/contratar', { 
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datosServicio)
-        });
-        */
-       
-        // Simulación de éxito
         console.log("Servicio contratado:", datosServicio);
         alert(`✅ ¡Éxito! El servicio "${nombreServicio}" se registró para ${nombreUsuario}.`);
-        
       } catch (err) {
-        console.error("Error:", err);
         alert("❌ No hay conexión con el servidor.");
       }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Botones de los 3 paquetes (Básico, Completo, Spa)
-      const botonesPaquetes = document.querySelectorAll('.pricing .card .btn');
-      botonesPaquetes.forEach((boton) => {
+      document.querySelectorAll('.pricing .card .btn').forEach(boton => {
         boton.addEventListener('click', (e) => {
           e.preventDefault();
           const card = e.target.closest('.card');
           const nombre = card.querySelector('h3').innerText;
-          const precioRaw = card.querySelector('.price').innerText;
-          // Extrae solo números del precio
-          const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
+          const precio = parseInt(card.querySelector('.price').innerText.replace(/[^\d]/g, ""));
           contratarServicio(nombre, precio);
         });
       });
 
-      // Botón de la membresía
       const btnMem = document.querySelector('.membership .btn');
       if (btnMem) {
         btnMem.addEventListener('click', (e) => {
           e.preventDefault();
-          const cardMem = e.target.closest('.membership-card'); // Ajustado para buscar el contenedor correcto
-          // En el HTML original, el precio está en .membership-card .big-price
-          const precioRaw = cardMem.querySelector('.big-price').innerText; 
-          const precio = parseInt(precioRaw.replace(/[^\d]/g, ""));
+          const cardMem = e.target.closest('.membership-card');
+          const precio = parseInt(cardMem.querySelector('.big-price').innerText.replace(/[^\d]/g, ""));
           contratarServicio("Membresía Mensual", precio);
         });
       }

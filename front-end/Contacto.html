@@ -9,28 +9,6 @@
   <link rel="stylesheet" href="BWap/style2.css">
   <link rel="stylesheet" href="header.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
-  <style>
-    /* ===== Botón carrito navbar ===== */
-    #carrito-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    #cartCount {
-      background: #ff4d4d;
-      color: #fff;
-      border-radius: 50%;
-      padding: 1px 6px;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 18px;
-      text-align: center;
-      line-height: 18px;
-    }
-  </style>
 </head>
 
 <body>
@@ -40,19 +18,22 @@
     <i class="fa fa-whatsapp my-float"></i>
   </a>
 
+  <!-- ===== HEADER ===== -->
   <header class="header">
     <div class="menu container">
-      <!-- LOGO (IZQUIERDA) -->
-      <a href="index.html" class="logo">
-        <img src="img/Logo.png" alt="Logo Doggie Chic Studio">
-      </a>
 
+      <!-- HAMBURGUESA (izquierda en móvil) -->
       <input type="checkbox" id="menu">
       <label for="menu">
         <img src="img/menu.png" class="menu-icono" alt="Menú">
       </label>
 
-      <!-- LINKS (CENTRO) -->
+      <!-- LOGO (centro en móvil) -->
+      <a href="index.html" class="logo">
+        <img src="img/Logo.png" alt="Logo Doggie Chic Studio">
+      </a>
+
+      <!-- LINKS -->
       <nav class="navbar">
         <ul>
           <li><a href="index.html">Inicio</a></li>
@@ -62,17 +43,14 @@
         </ul>
       </nav>
 
-      <!-- LOGIN Y CARRITO (DERECHA) -->
+      <!-- CUENTA + CARRITO (derecha) -->
       <div class="menu-actions">
-        <!-- Login -->
         <div id="menu-usuario">
           <a href="login.html" id="userLink">
             <span id="userText">Cuenta</span>
           </a>
         </div>
-
-        <!-- Carrito (oculto por defecto) -->
-        <a href="carrito.html" id="carrito-btn" style="display: none;">
+        <a href="carrito.html" id="carrito-btn" style="display:none;">
           <img src="img/car.svg" id="img-carrito" alt="Carrito">
           <span id="cartCount">0</span>
         </a>
@@ -105,7 +83,6 @@
 
       <div class="info">
         <img src="img/info-1.svg" class="img-1" alt="Ilustración de contacto">
-
         <div class="location">
           <div class="icons">
             <img src="img/gps.svg" alt="Ubicación">
@@ -120,7 +97,6 @@
             <p>doggiechicstudio@gmail.com</p>
           </div>
         </div>
-
         <div class="social">
           <img src="img/fa.svg" alt="Facebook">
           <img src="img/tw.svg" alt="Twitter">
@@ -133,25 +109,21 @@
 
   <script src="script.js"></script>
   <script>
-    // --- LÓGICA DEL FORMULARIO (Envío a MongoDB) ---
     document.getElementById('contactForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const datos = {
         nombre: document.getElementById('nombre').value,
         email: document.getElementById('correo').value,
         mensaje: document.getElementById('mensaje').value
       };
-
       try {
         const respuesta = await fetch('/api/contacto', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(datos)
         });
-
         if (respuesta.ok) {
-          alert("¡Mensaje enviado con éxito! Lo verás en tu colección 'mensajes' en Atlas.");
+          alert("¡Mensaje enviado con éxito!");
           e.target.reset();
         } else {
           alert("Hubo un problema al enviar el mensaje.");
