@@ -553,35 +553,53 @@ const PRODUCTOS_BASE = [
   }
 
   if (mBuy) {
-  mBuy.addEventListener("click", async () => {
-    if (!currentProduct) return;
-    const cantidad = parseInt(document.getElementById("mQty")?.value || 1);
-
-    const items = [{
-      id: currentProduct.id,
-      title: currentProduct.title,
-      price: currentProduct.price,
-      cantidad: cantidad
-    }];
-
-    try {
-      const respuesta = await fetch('/api/crear-sesion-stripe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items })
-      });
-
-      if (respuesta.ok) {
-        const data = await respuesta.json();
-        window.location.href = data.url;
-      } else {
-        alert("Error al iniciar el pago.");
+    mBuy.addEventListener("click", async () => {
+      if (!currentProduct) return;
+      
+      // 1. Obtener el token del usuario
+      const token = localStorage.getItem('token');
+      
+      // 2. Validar que haya iniciado sesión
+      if (!token) {
+        alert("Debes iniciar sesión para poder comprar.");
+        window.location.href = "login.html"; 
+        return;
       }
-    } catch (error) {
-      alert("Error de conexión.");
-    }
-  });
-}
+
+      const cantidad = parseInt(document.getElementById("mQty")?.value || 1);
+
+      const items = [{
+        id: currentProduct.id,
+        title: currentProduct.title,
+        price: currentProduct.price,
+        cantidad: cantidad
+      }];
+
+      try {
+        // 3. Apuntar a la nueva ruta y enviar el token en los headers
+        const respuesta = await fetch('/api/pagos/crear-sesion-stripe', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-auth-token': token // <-- Aquí enviamos el token para el authMiddleware
+          },
+          body: JSON.stringify({ items })
+        });
+
+        if (respuesta.ok) {
+          const data = await respuesta.json();
+          localStorage.setItem('compra_pendiente', JSON.stringify(items));
+          window.location.href = data.url;
+        } else {
+          // Capturar el error del backend si el token falla o hay otro problema
+          const errorData = await respuesta.json();
+          alert("Error al iniciar el pago: " + (errorData.error || errorData.msg || "Desconocido"));
+        }
+      } catch (error) {
+        alert("Error de conexión.");
+      }
+    });
+  }
 
   // Click en similar
   document.addEventListener("click", (e) => {

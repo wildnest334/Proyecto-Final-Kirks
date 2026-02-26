@@ -17,5 +17,44 @@
     <script>
         localStorage.removeItem("doggie_cart_shop_v1");
     </script>
+
+    <script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('token');
+        
+        // 1. Leemos la compra pendiente que guardamos antes de ir a Stripe
+        const itemsString = localStorage.getItem('compra_pendiente');
+        let items = [];
+        
+        try {
+            if (itemsString) items = JSON.parse(itemsString);
+        } catch(e) {}
+
+        // 2. Si hay productos pendientes y el usuario está logueado, mandamos el correo
+        if (items.length > 0 && token) {
+            try {
+                const respuesta = await fetch('/api/pagos/confirmar-compra', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({ items })
+                });
+
+                if (respuesta.ok) {
+                    console.log("¡Compra confirmada en base de datos y correo enviado!");
+                    // 3. Limpiamos la memoria temporal y el carrito real
+                    localStorage.removeItem('compra_pendiente');
+                    window.setCart([]);
+                }
+            } catch (error) {
+                console.error("Error al confirmar la compra:", error);
+            }
+        }
+    });
+</script>
+
 </body>
 </html>

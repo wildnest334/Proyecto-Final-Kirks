@@ -43,8 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const carritoWrapper = document.getElementById('carrito-wrapper'); // Para Productos.html que tiene wrapper
 
   if (userName && userText && menuUsuario) {
-    // userText.innerText = "Hola, " + userName; // Ya no mostramos el nombre
-    if (userLink) userLink.style.display = 'none'; // Ocultamos "Cuenta"
+    if (userLink) {
+      userLink.style.display = 'inline-block'; // Asegurarnos de que sea visible
+      userText.innerText = "Mis Compras";
+      userLink.href = "cuenta.html"; 
+    }
+
+    // Mostrar carrito si el usuario está logueado
+    if (carritoBtn) carritoBtn.style.display = 'flex';
 
     // Mostrar carrito si el usuario está logueado
     if (carritoBtn) carritoBtn.style.display = 'flex';

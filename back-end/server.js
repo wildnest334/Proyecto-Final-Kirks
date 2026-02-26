@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middlewares/authMiddleware');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const pagosRoutes = require('./routes/pagos');
 
 const Usuario = require('./models/Usuario');
 const ProductoVendido = require('./models/ProductoVendido');
@@ -21,6 +22,7 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/pagos', pagosRoutes);
 
 
 
@@ -179,47 +181,6 @@ app.post('/api/contacto', async (req, res) => {
     }
 });
 
-app.post('/api/crear-sesion-stripe', async (req, res) => {
-    try {
-        const { items, usuario } = req.body; // Recibimos el usuario del frontend
-
-        // 1. Guardar el registro en MongoDB Atlas (Colección productovendidos)
-        for (const item of items) {
-            const nuevaVenta = new ProductoVendido({
-                usuario: usuario || "Invitado",
-                nombreProducto: item.title,
-                precio: Number(item.price),
-                cantidad: item.cantidad,
-                total: Number(item.price) * item.cantidad,
-                fecha: new Date()
-            });
-            await nuevaVenta.save();
-        }
-
-        // 2. Crear la sesión de Stripe
-        const lineItems = items.map(item => ({
-            price_data: {
-                currency: 'mxn',
-                product_data: { name: item.title },
-                unit_amount: Math.round(Number(item.price) * 100), 
-            },
-            quantity: item.cantidad,
-        }));
-
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: lineItems,
-            mode: 'payment',
-            success_url: 'http://localhost:4000/exito.html',
-            cancel_url: 'http://localhost:4000/carrito.html',
-        });
-
-        res.json({ url: session.url });
-    } catch (error) {
-        console.error("Error en Stripe/DB:", error);
-        res.status(500).json({ error: 'Error al procesar la compra' });
-    }
-});
 
 // Archivos estáticos
 const publicPath = path.join(__dirname, '..', 'front-end');
