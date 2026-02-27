@@ -267,10 +267,12 @@ app.use((req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en: http://localhost:${PORT}`);
-});
-
-module.exports = app;
 
 // deploy final
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en: http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
