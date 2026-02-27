@@ -559,7 +559,7 @@
             if (confirm("¿Seguro que quieres vaciar el carrito?")) setCart([]);
         });
 
-        // Comprar ahora (igual que tenías)
+        // Comprar ahora
         document.getElementById("btnComprarAhora").addEventListener("click", async () => {
             const cart = getCart();
             if (!cart.length) return;
@@ -573,7 +573,7 @@
             const items = Object.values(agrupado);
 
             try {
-                const respuesta = await fetch('/api/crear-sesion-stripe', {
+                const respuesta = await fetch('/api/pagos/crear-sesion-stripe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ items, usuario: nombreUsuario })
