@@ -20,7 +20,17 @@
   "main": "index.js",
   "scripts": {
     "start": "cd back-end && node server.js",
-    "test": "jest"
+    "test": "jest --verbose"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/test/**/*.test.js"],
+    "moduleNameMapper": {
+      "../models/ProductoVendido":    "<rootDir>/back-end/models/ProductoVendido.js",
+      "../models/ServicioContratado": "<rootDir>/back-end/models/ServicioContratado.js",
+      "../models/Usuario":            "<rootDir>/back-end/models/Usuario.js",
+      "../controllers/pagoController":"<rootDir>/back-end/controllers/pagoController.js"
+    }
   },
   "repository": {
     "type": "git",
@@ -33,5 +43,5 @@
   "bugs": {
     "url": "https://github.com/wildnest334/Proyecto-Final-Kirks/issues"
   },
-  "homepage": "https://github.com/wildnest334/Proyecto-Final-Kirks#readme"
+  "homepage": "https://github.com/wildnest134/Proyecto-Final-Kirks#readme"
 }
