@@ -1,0 +1,30 @@
+name: Backend Tests - Doggie Chic
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Instalar dependencias
+        working-directory: back-end
+        run: npm install
+
+      - name: Ejecutar pruebas
+        working-directory: back-end
+        run: npm test
