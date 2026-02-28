@@ -26,10 +26,10 @@
     "testEnvironment": "node",
     "testMatch": ["**/test/**/*.test.js"],
     "moduleNameMapper": {
-      "../models/ProductoVendido":    "<rootDir>/back-end/models/ProductoVendido.js",
-      "../models/ServicioContratado": "<rootDir>/back-end/models/ServicioContratado.js",
-      "../models/Usuario":            "<rootDir>/back-end/models/Usuario.js",
-      "../controllers/pagoController":"<rootDir>/back-end/controllers/pagoController.js"
+      "../models/ProductoVendido":    "<rootDir>/models/ProductoVendido.js",
+      "../models/ServicioContratado": "<rootDir>/models/ServicioContratado.js",
+      "../models/Usuario":            "<rootDir>/models/Usuario.js",
+      "../controllers/pagoController":"<rootDir>/controllers/pagoController.js"
     }
   },
   "repository": {
