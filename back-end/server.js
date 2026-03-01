@@ -151,7 +151,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: usuario._id, role: usuario.role },
+            { id: usuario._id, role: admin },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -160,7 +160,7 @@ app.post('/api/auth/login', async (req, res) => {
             success: true,
             token,
             nombre: usuario.nombreUsuario,
-            role: usuario.role 
+            role: admin 
         });
 
     } catch (error) {
