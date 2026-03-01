@@ -580,6 +580,8 @@
             });
             const items = Object.values(agrupado);
 
+            localStorage.setItem('compra_pendiente', JSON.stringify(items));
+
             try {
                 const respuesta = await fetch('/api/pagos/crear-sesion-stripe', {
                     method: 'POST',
