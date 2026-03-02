@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 exports.crearSesionStripe = async (req, res) => {
     try {
         const { items } = req.body;
-        const DOMAIN = req.headers.origin || 'https://proyecto-final-kirks-delta.vercel.app';
+        const DOMAIN = (req.headers && req.headers.origin) || 'https://proyecto-final-kirks-delta.vercel.app';
 
         const lineItems = items.map(item => ({
             price_data: {
