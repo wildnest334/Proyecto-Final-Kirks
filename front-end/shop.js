@@ -227,12 +227,16 @@ const PRODUCTOS_BASE = [
     bindAdminButtons();
   }
 
-  // ================================================
+ // ================================================
   // BOTÓN AGREGAR PRODUCTO (solo admin)
   // ================================================
   if (esAdmin) {
     const shopTop = $(".shop-products-top");
+    
+    // Todo debe ir dentro de este if
     if (shopTop) {
+      
+      // 1. Botón Agregar (El normal)
       const btnAgregar = document.createElement('button');
       btnAgregar.innerHTML = '➕ Agregar Producto';
       btnAgregar.style.cssText = `
@@ -244,9 +248,8 @@ const PRODUCTOS_BASE = [
       `;
       btnAgregar.addEventListener('click', () => abrirModalAdmin(null));
       shopTop.appendChild(btnAgregar);
-    }
     
-    // --- BOTÓN TEMPORAL PARA MIGRAR PRODUCTOS A MONGODB ---
+      // 2. BOTÓN TEMPORAL PARA MIGRAR PRODUCTOS A MONGODB
       const btnMigrar = document.createElement('button');
       btnMigrar.innerHTML = '🚀 Migrar 100 Productos a BD';
       btnMigrar.style.cssText = `
@@ -255,6 +258,7 @@ const PRODUCTOS_BASE = [
         cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         margin-top: 8px; margin-left: 10px;
       `;
+      
       btnMigrar.addEventListener('click', async () => {
         if (!confirm("¿Seguro que quieres subir los 100 productos a MongoDB? Esto tomará unos segundos.")) return;
         
@@ -270,7 +274,7 @@ const PRODUCTOS_BASE = [
               headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
               body: JSON.stringify({
                 title: p.title,
-                price: Number(p.price), // Convertimos el precio a número
+                price: Number(p.price),
                 cat: p.cat,
                 desc: p.desc,
                 tags: p.tags,
@@ -285,10 +289,12 @@ const PRODUCTOS_BASE = [
         alert(`¡Listo! Se subieron ${subidos} productos a MongoDB.`);
         btnMigrar.innerHTML = '✅ Migración Completa';
       });
+      
       shopTop.appendChild(btnMigrar);
-      // --------------------------------------------------------
-
+      
+    } 
   }
+
 
   // ================================================
   // MODAL CRUD ADMIN
