@@ -212,11 +212,11 @@ const PRODUCTOS_BASE = [
           <div class="admin-actions" style="display:flex; gap:8px; margin-top:10px;">
             <button class="btn-admin-edit" data-id="${p.id}"
               style="flex:1; background:#f0ad00; color:#fff; border:none; border-radius:8px; padding:6px; font-weight:700; cursor:pointer;">
-              ✏️ Editar
+              Editar
             </button>
             <button class="btn-admin-delete" data-id="${p.id}"
               style="flex:1; background:#ff4d4d; color:#fff; border:none; border-radius:8px; padding:6px; font-weight:700; cursor:pointer;">
-              🗑️ Borrar
+              Borrar
             </button>
           </div>` : ''}
         </div>
@@ -238,7 +238,7 @@ const PRODUCTOS_BASE = [
       
       // 1. Botón Agregar (El normal)
       const btnAgregar = document.createElement('button');
-      btnAgregar.innerHTML = '➕ Agregar Producto';
+      btnAgregar.innerHTML = 'Agregar Producto';
       btnAgregar.style.cssText = `
         background: linear-gradient(90deg, #0D47A1, #1976D2);
         color: white; border: none; border-radius: 10px;
@@ -321,7 +321,7 @@ const PRODUCTOS_BASE = [
           border:none;font-size:22px;cursor:pointer;color:#888;">✕</button>
 
         <h3 style="margin-bottom:20px; color:#0D47A1; font-size:20px;">
-          ${esEdicion ? '✏️ Editar Producto' : '➕ Agregar Producto'}
+          ${esEdicion ? 'Editar Producto' : 'Agregar Producto'}
         </h3>
 
         <div style="display:flex; flex-direction:column; gap:14px;">
@@ -370,7 +370,7 @@ const PRODUCTOS_BASE = [
             style="background:linear-gradient(90deg,#0D47A1,#1976D2); color:white; border:none;
                    border-radius:10px; padding:13px; font-size:16px; font-weight:800; cursor:pointer;
                    margin-top:6px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
-            ${esEdicion ? '💾 Guardar Cambios' : '➕ Agregar Producto'}
+            ${esEdicion ? 'Guardar Cambios' : 'Agregar Producto'}
           </button>
         </div>
       </div>
